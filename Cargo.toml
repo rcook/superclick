@@ -1,0 +1,26 @@
+[package]
+name = "test_plugin"
+version = "0.1.0"
+edition = "2021"
+authors = ["Richard Cook <rcook@rcook.org>"]
+license = "MIT"
+homepage = "https://github.com/rcook/test-plugin"
+description = "Test Plugin"
+
+[workspace]
+members = ["xtask"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", default_features = false, features = ["assert_process_allocs"] }
+
+[profile.release]
+lto = "thin"
+strip = "symbols"
+
+[profile.profiling]
+inherits = "release"
+debug = true
+strip = "none"
