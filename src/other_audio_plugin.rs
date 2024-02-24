@@ -5,12 +5,12 @@ use std::sync::Arc;
 // https://github.com/robbert-vdh/nih-plug/blob/master/plugins/examples/gain/src/lib.rs to get
 // started
 
-pub struct AudioPlugin {
-    params: Arc<AudioPluginParams>,
+pub struct OtherAudioPlugin {
+    params: Arc<OtherAudioPluginParams>,
 }
 
 #[derive(Params)]
-struct AudioPluginParams {
+struct OtherAudioPluginParams {
     /// The parameter's ID is used to identify the parameter in the wrappred plugin API. As long as
     /// these IDs remain constant, you can rename and reorder these fields as you wish. The
     /// parameters are exposed to the host in the same order they were defined. In this case, this
@@ -19,15 +19,15 @@ struct AudioPluginParams {
     pub gain: FloatParam,
 }
 
-impl Default for AudioPlugin {
+impl Default for OtherAudioPlugin {
     fn default() -> Self {
         Self {
-            params: Arc::new(AudioPluginParams::default()),
+            params: Arc::new(OtherAudioPluginParams::default()),
         }
     }
 }
 
-impl Default for AudioPluginParams {
+impl Default for OtherAudioPluginParams {
     fn default() -> Self {
         Self {
             // This gain is stored as linear gain. NIH-plug comes with useful conversion functions
@@ -57,8 +57,8 @@ impl Default for AudioPluginParams {
     }
 }
 
-impl Plugin for AudioPlugin {
-    const NAME: &'static str = "Richard's Audio Plugin";
+impl Plugin for OtherAudioPlugin {
+    const NAME: &'static str = "Richard's Other Audio Plugin";
     const VENDOR: &'static str = "Richard Cook";
     const URL: &'static str = env!("CARGO_PKG_HOMEPAGE");
     const EMAIL: &'static str = "rcook@rcook.org";
@@ -134,9 +134,9 @@ impl Plugin for AudioPlugin {
     }
 }
 
-impl ClapPlugin for AudioPlugin {
-    const CLAP_ID: &'static str = "org.rcook.audio-plugin";
-    const CLAP_DESCRIPTION: Option<&'static str> = Some("Audio Plugin");
+impl ClapPlugin for OtherAudioPlugin {
+    const CLAP_ID: &'static str = "org.rcook.other-audio-plugin";
+    const CLAP_DESCRIPTION: Option<&'static str> = Some("Other Audio Plugin");
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;
 
