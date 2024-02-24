@@ -136,7 +136,7 @@ impl Plugin for AudioPlugin {
 
 impl ClapPlugin for AudioPlugin {
     const CLAP_ID: &'static str = "org.rcook.audio-plugin";
-    const CLAP_DESCRIPTION: Option<&'static str> = Some("Audio Plugin");
+    const CLAP_DESCRIPTION: Option<&'static str> = Some("Richard's Audio Plugin");
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;
 
