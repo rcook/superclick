@@ -19,6 +19,8 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-fn main() -> nih_plug_xtask::Result<()> {
-    nih_plug_xtask::main()
+use nih_plug_xtask::{main as nih_plug_xtask_main, Result};
+
+fn main() -> Result<()> {
+    nih_plug_xtask_main()
 }
