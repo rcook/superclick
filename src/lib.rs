@@ -1,6 +1,6 @@
-mod click_track;
+mod reaclick;
 
-use click_track::ClickTrackPlugin;
 use nih_plug::nih_export_clap;
+use reaclick::ReaClick;
 
-nih_export_clap!(ClickTrackPlugin);
+nih_export_clap!(ReaClick);

@@ -4,27 +4,27 @@ use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::sync::Arc;
 
-pub struct ClickTrackPlugin {
-    params: Arc<ClickTrackPluginParams>,
+pub struct ReaClick {
+    params: Arc<ReaClickParams>,
     transport_info: TransportInfoRef,
 }
 
 #[derive(Params)]
-pub struct ClickTrackPluginParams {
+pub struct ReaClickParams {
     #[persist = "editor-state"]
     editor_state: Arc<IcedState>,
 }
 
-impl Default for ClickTrackPlugin {
+impl Default for ReaClick {
     fn default() -> Self {
         Self {
-            params: Arc::new(ClickTrackPluginParams::default()),
+            params: Arc::new(ReaClickParams::default()),
             transport_info: TransportInfo::new(),
         }
     }
 }
 
-impl Default for ClickTrackPluginParams {
+impl Default for ReaClickParams {
     fn default() -> Self {
         Self {
             editor_state: editor_default_state(),
@@ -32,8 +32,8 @@ impl Default for ClickTrackPluginParams {
     }
 }
 
-impl Plugin for ClickTrackPlugin {
-    const NAME: &'static str = "Click Track";
+impl Plugin for ReaClick {
+    const NAME: &'static str = "ReaClick";
     const VENDOR: &'static str = "Richard Cook";
     const URL: &'static str = env!("CARGO_PKG_HOMEPAGE");
     const EMAIL: &'static str = "rcook@rcook.org";
@@ -109,9 +109,9 @@ impl Plugin for ClickTrackPlugin {
     }
 }
 
-impl ClapPlugin for ClickTrackPlugin {
-    const CLAP_ID: &'static str = "org.rcook.click-track";
-    const CLAP_DESCRIPTION: Option<&'static str> = Some(ClickTrackPlugin::NAME);
+impl ClapPlugin for ReaClick {
+    const CLAP_ID: &'static str = "org.rcook.reaclick";
+    const CLAP_DESCRIPTION: Option<&'static str> = Some(Self::NAME);
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;
     const CLAP_FEATURES: &'static [ClapFeature] = &[

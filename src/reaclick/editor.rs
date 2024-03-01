@@ -1,5 +1,5 @@
 use super::data::TransportInfoRef;
-use super::plugin::ClickTrackPluginParams;
+use super::plugin::ReaClickParams;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::*;
 use std::sync::Arc;
@@ -9,16 +9,16 @@ pub fn default_state() -> Arc<IcedState> {
 }
 
 pub fn create(
-    params: Arc<ClickTrackPluginParams>,
+    params: Arc<ReaClickParams>,
     transport_info: TransportInfoRef,
     editor_state: Arc<IcedState>,
 ) -> Option<Box<dyn Editor>> {
-    create_iced_editor::<ClickTrackPluginEditor>(editor_state, (params, transport_info))
+    create_iced_editor::<ReaClickEditor>(editor_state, (params, transport_info))
 }
 
-struct ClickTrackPluginEditor {
+struct ReaClickEditor {
     #[allow(unused)]
-    params: Arc<ClickTrackPluginParams>,
+    params: Arc<ReaClickParams>,
     context: Arc<dyn GuiContext>,
     transport_info: TransportInfoRef,
 }
@@ -26,16 +26,16 @@ struct ClickTrackPluginEditor {
 #[derive(Debug, Clone, Copy)]
 enum Message {}
 
-impl IcedEditor for ClickTrackPluginEditor {
+impl IcedEditor for ReaClickEditor {
     type Executor = executor::Default;
     type Message = Message;
-    type InitializationFlags = (Arc<ClickTrackPluginParams>, TransportInfoRef);
+    type InitializationFlags = (Arc<ReaClickParams>, TransportInfoRef);
 
     fn new(
         (params, transport_info): Self::InitializationFlags,
         context: Arc<dyn GuiContext>,
     ) -> (Self, Command<Self::Message>) {
-        let editor = ClickTrackPluginEditor {
+        let editor = ReaClickEditor {
             params,
             context,
             transport_info,
@@ -72,7 +72,7 @@ impl IcedEditor for ClickTrackPluginEditor {
         Column::new()
             .align_items(Alignment::Center)
             .push(
-                Text::new("Click Track")
+                Text::new("ReaClick")
                     .font(assets::NOTO_SANS_LIGHT)
                     .size(40)
                     .height(50.into())
