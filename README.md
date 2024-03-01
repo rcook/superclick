@@ -6,11 +6,12 @@
 
 ## Building
 
-After installing [Rust](https://rustup.rs/), you can compile Test Plugin as follows:
+After installing [Rust][rustup], you can compile ReaClick as follows:
 
-```shell
-cargo xtask bundle test_plugin --release
+```bash
+cargo xtask bundle reaclick --release
 ```
 
 [clap]: https://cleveraudio.org/
 [reaper]: https://reaper.fm/
+[rustup]: (https://rustup.rs/)

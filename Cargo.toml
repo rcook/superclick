@@ -1,11 +1,11 @@
 [package]
-name = "test_plugin"
-version = "0.1.0"
-edition = "2021"
 authors = ["Richard Cook <rcook@rcook.org>"]
+description = "ReaClick - CLAP click track generator plugin"
+edition = "2021"
+homepage = "https://github.com/rcook/reaclikc"
 license = "MIT"
-homepage = "https://github.com/rcook/test-plugin"
-description = "Test Plugin"
+name = "reaclick"
+version = "0.1.0"
 
 [workspace]
 members = ["xtask"]
@@ -14,7 +14,6 @@ members = ["xtask"]
 crate-type = ["cdylib"]
 
 [dependencies]
-atomic_float = "0.1"
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
 nih_plug_iced = { git = "https://github.com/robbert-vdh/nih-plug.git" }
 
@@ -23,6 +22,6 @@ lto = "thin"
 strip = "symbols"
 
 [profile.profiling]
-inherits = "release"
 debug = true
+inherits = "release"
 strip = "none"
