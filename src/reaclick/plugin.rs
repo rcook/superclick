@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use super::data::{TransportInfo, TransportInfoRef};
-use super::editor::{create as create_editor, default_state as editor_default_state};
+use super::editor::{create_default_state, create_editor};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::sync::Arc;
@@ -48,7 +48,7 @@ impl Default for ReaClick {
 impl Default for ReaClickParams {
     fn default() -> Self {
         Self {
-            editor_state: editor_default_state(),
+            editor_state: create_default_state(),
         }
     }
 }
