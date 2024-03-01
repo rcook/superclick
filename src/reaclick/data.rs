@@ -25,6 +25,7 @@ pub type TransportInfoRef = Arc<Mutex<TransportInfo>>;
 
 #[derive(Default)]
 pub struct TransportInfo {
+    pub tempo: f64,
     pub bar_number: i32,
     pub bar_start_pos_beats: f64,
     pub pos_beats: f64,

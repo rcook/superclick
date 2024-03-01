@@ -108,6 +108,9 @@ impl Plugin for ReaClick {
         {
             if self.params.editor_state.is_open() {
                 let mut transport_info = self.transport_info.lock().expect("TBD");
+                if let Some(tempo) = context.transport().tempo {
+                    transport_info.tempo = tempo;
+                }
                 if let Some(bar_number) = context.transport().bar_number() {
                     transport_info.bar_number = bar_number;
                 }

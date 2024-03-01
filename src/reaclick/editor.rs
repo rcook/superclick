@@ -22,12 +22,9 @@
 use super::data::TransportInfoRef;
 use super::plugin::ReaClickParams;
 use nih_plug::prelude::{Editor, GuiContext};
-use nih_plug_iced::alignment::{Alignment, Horizontal, Vertical};
-use nih_plug_iced::assets::NOTO_SANS_LIGHT;
 use nih_plug_iced::executor::Default;
 use nih_plug_iced::{
-    create_iced_editor, Color, Column, Command, Element, IcedEditor, IcedState, Length, Space,
-    Text, WindowQueue,
+    create_iced_editor, Color, Column, Command, Element, IcedEditor, IcedState, Text, WindowQueue,
 };
 use std::sync::Arc;
 
@@ -96,37 +93,28 @@ impl IcedEditor for ReaClickEditor {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let transport_info_str = {
+        let (tempo_str, pos_str, time_sig_str) = {
             let transport_info = self.transport_info.lock().expect("TBD");
-            format!(
-                "pos={:04}/{:05.2}/{:05.2} time_sig={}/{}",
-                transport_info.bar_number,
-                transport_info.bar_start_pos_beats,
-                transport_info.pos_beats,
-                transport_info.time_sig_numerator,
-                transport_info.time_sig_denominator
+            (
+                format!("Tempo: {} qpm", transport_info.tempo),
+                format!(
+                    "Song position: {:04}/{:05.2}/{:05.2}",
+                    transport_info.bar_number,
+                    transport_info.bar_start_pos_beats,
+                    transport_info.pos_beats,
+                ),
+                format!(
+                    "Time signature: {}/{}",
+                    transport_info.time_sig_numerator, transport_info.time_sig_denominator
+                ),
             )
         };
 
         Column::new()
-            .align_items(Alignment::Center)
-            .push(
-                Text::new("ReaClick")
-                    .font(NOTO_SANS_LIGHT)
-                    .size(40)
-                    .height(50.into())
-                    .width(Length::Fill)
-                    .horizontal_alignment(Horizontal::Center)
-                    .vertical_alignment(Vertical::Bottom),
-            )
-            .push(
-                Text::new(&transport_info_str)
-                    .height(20.into())
-                    .width(Length::Fill)
-                    .horizontal_alignment(Horizontal::Center)
-                    .vertical_alignment(Vertical::Center),
-            )
-            .push(Space::with_height(10.into()))
+            .push(Text::new("ReaClick"))
+            .push(Text::new(&tempo_str))
+            .push(Text::new(&pos_str))
+            .push(Text::new(&time_sig_str))
             .into()
     }
 
