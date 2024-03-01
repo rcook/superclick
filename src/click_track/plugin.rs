@@ -4,27 +4,27 @@ use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::sync::Arc;
 
-pub struct GuiPlugin {
-    params: Arc<GuiPluginParams>,
+pub struct ClickTrackPlugin {
+    params: Arc<ClickTrackPluginParams>,
     transport_info: TransportInfoRef,
 }
 
 #[derive(Params)]
-pub struct GuiPluginParams {
+pub struct ClickTrackPluginParams {
     #[persist = "editor-state"]
     editor_state: Arc<IcedState>,
 }
 
-impl Default for GuiPlugin {
+impl Default for ClickTrackPlugin {
     fn default() -> Self {
         Self {
-            params: Arc::new(GuiPluginParams::default()),
+            params: Arc::new(ClickTrackPluginParams::default()),
             transport_info: TransportInfo::new(),
         }
     }
 }
 
-impl Default for GuiPluginParams {
+impl Default for ClickTrackPluginParams {
     fn default() -> Self {
         Self {
             editor_state: editor_default_state(),
@@ -32,8 +32,8 @@ impl Default for GuiPluginParams {
     }
 }
 
-impl Plugin for GuiPlugin {
-    const NAME: &'static str = "Richard's GUI Plugin";
+impl Plugin for ClickTrackPlugin {
+    const NAME: &'static str = "Click Track";
     const VENDOR: &'static str = "Richard Cook";
     const URL: &'static str = env!("CARGO_PKG_HOMEPAGE");
     const EMAIL: &'static str = "rcook@rcook.org";
@@ -109,9 +109,9 @@ impl Plugin for GuiPlugin {
     }
 }
 
-impl ClapPlugin for GuiPlugin {
-    const CLAP_ID: &'static str = "org.rcook.gui-plugin";
-    const CLAP_DESCRIPTION: Option<&'static str> = Some(GuiPlugin::NAME);
+impl ClapPlugin for ClickTrackPlugin {
+    const CLAP_ID: &'static str = "org.rcook.click-track";
+    const CLAP_DESCRIPTION: Option<&'static str> = Some(ClickTrackPlugin::NAME);
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;
     const CLAP_FEATURES: &'static [ClapFeature] = &[

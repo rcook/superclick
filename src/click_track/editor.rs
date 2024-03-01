@@ -1,5 +1,5 @@
 use super::data::TransportInfoRef;
-use super::plugin::GuiPluginParams;
+use super::plugin::ClickTrackPluginParams;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::*;
 use std::sync::Arc;
@@ -9,16 +9,16 @@ pub fn default_state() -> Arc<IcedState> {
 }
 
 pub fn create(
-    params: Arc<GuiPluginParams>,
+    params: Arc<ClickTrackPluginParams>,
     transport_info: TransportInfoRef,
     editor_state: Arc<IcedState>,
 ) -> Option<Box<dyn Editor>> {
-    create_iced_editor::<GuiPluginEditor>(editor_state, (params, transport_info))
+    create_iced_editor::<ClickTrackPluginEditor>(editor_state, (params, transport_info))
 }
 
-struct GuiPluginEditor {
+struct ClickTrackPluginEditor {
     #[allow(unused)]
-    params: Arc<GuiPluginParams>,
+    params: Arc<ClickTrackPluginParams>,
     context: Arc<dyn GuiContext>,
     transport_info: TransportInfoRef,
 }
@@ -26,16 +26,16 @@ struct GuiPluginEditor {
 #[derive(Debug, Clone, Copy)]
 enum Message {}
 
-impl IcedEditor for GuiPluginEditor {
+impl IcedEditor for ClickTrackPluginEditor {
     type Executor = executor::Default;
     type Message = Message;
-    type InitializationFlags = (Arc<GuiPluginParams>, TransportInfoRef);
+    type InitializationFlags = (Arc<ClickTrackPluginParams>, TransportInfoRef);
 
     fn new(
         (params, transport_info): Self::InitializationFlags,
         context: Arc<dyn GuiContext>,
     ) -> (Self, Command<Self::Message>) {
-        let editor = GuiPluginEditor {
+        let editor = ClickTrackPluginEditor {
             params,
             context,
             transport_info,
