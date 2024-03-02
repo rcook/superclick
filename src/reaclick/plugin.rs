@@ -158,9 +158,8 @@ impl Plugin for ReaClick {
         }
 
         if transport.playing {
-            let value = self.calculate_sine(880f32);
-
             for channel_samples in buffer.iter_samples() {
+                let value = self.calculate_sine(880f32);
                 for sample in channel_samples {
                     *sample = value;
                 }
