@@ -27,14 +27,14 @@ use nih_plug_iced::IcedState;
 use std::f32::consts;
 use std::sync::Arc;
 
-pub enum Panning {
+pub enum Channel {
     Left,
     Right,
     Both,
 }
 
 pub struct Click {
-    panning: Panning,
+    channel: Channel,
     frequency: f32,
     length: f64,
 }
@@ -43,21 +43,21 @@ pub struct Click {
 
 // Body Beat Pulse Solo accent (high-intensity) click
 const ACCENT_CLICK: Click = Click {
-    panning: Panning::Right,
+    channel: Channel::Right,
     frequency: 400f32,
     length: 0.125f64,
 };
 
 // Body Beat Pulse Solo subaccent (medium-intensity) click
 const SUBACCENT_CLICK: Click = Click {
-    panning: Panning::Left,
+    channel: Channel::Left,
     frequency: 800f32,
     length: 0.125f64,
 };
 
 // Body Beat Pulse Solo normal (low-intensity) click
 const NORMAL_CLICK: Click = Click {
-    panning: Panning::Both,
+    channel: Channel::Both,
     frequency: 1_600f32,
     length: 0.125f64,
 };
@@ -169,10 +169,10 @@ impl ReaClick {
 
                     // There's probably a more efficient way to do this...
                     for (channel_id, sample) in channel_samples.into_iter().enumerate() {
-                        let is_audible = match click.panning {
-                            Panning::Left => channel_id == 0,
-                            Panning::Right => channel_id == 1,
-                            Panning::Both => channel_id == 0 || channel_id == 1,
+                        let is_audible = match click.channel {
+                            Channel::Left => channel_id == 0,
+                            Channel::Right => channel_id == 1,
+                            Channel::Both => channel_id == 0 || channel_id == 1,
                         };
                         if is_audible {
                             *sample = value;
