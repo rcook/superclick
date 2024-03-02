@@ -29,6 +29,7 @@ use std::sync::Arc;
 const BAR_FREQUENCY: f32 = 400f32;
 const ACCENT_FREQUENCY: f32 = 800f32;
 const NORMAL_FREQUENCY: f32 = 1600f32;
+const CLICK_LENGTH: f64 = 0.125f64;
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
@@ -195,7 +196,7 @@ impl Plugin for ReaClick {
                     NORMAL_FREQUENCY
                 };
                 let temp = (i as f64) * y;
-                if x >= temp + 0f64 && x <= temp + 0.125f64 {
+                if x >= temp && x <= temp + CLICK_LENGTH {
                     for channel_samples in buffer.iter_samples() {
                         let value = self.calculate_sine(f);
                         for sample in channel_samples {
