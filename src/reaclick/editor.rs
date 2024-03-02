@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::DisplayDataRef;
+use super::data::{DisplayData, DisplayDataRef};
 use super::plugin::ReaClickParams;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::executor::Default;
@@ -62,6 +62,47 @@ struct ReaClickEditor {
 #[derive(Debug, Clone, Copy)]
 enum Message {}
 
+struct DisplayStrings {
+    buffer: String,
+    tempo: String,
+    song_position: String,
+    time_sig: String,
+}
+
+impl DisplayStrings {
+    fn from_display_data(display_data: &DisplayData) -> Self {
+        let buffer = format!(
+            "{} / {:?} / {} / {}",
+            display_data.sample_rate,
+            display_data.min_buffer_size,
+            display_data.max_buffer_size,
+            display_data.samples
+        );
+
+        if let Some(ref playhead) = display_data.playhead {
+            Self {
+                buffer,
+                tempo: format!("Tempo: {} qpm", playhead.tempo),
+                song_position: format!(
+                    "Song position: {:04}/{:05.2}/{:05.2}",
+                    playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
+                ),
+                time_sig: format!(
+                    "Time signature: {}/{}",
+                    playhead.time_sig_numerator, playhead.time_sig_denominator
+                ),
+            }
+        } else {
+            Self {
+                buffer,
+                tempo: String::from("(Tempo unavailable)"),
+                song_position: String::from("(Song position unavailable)"),
+                time_sig: String::from("(Time signature unavailable)"),
+            }
+        }
+    }
+}
+
 impl IcedEditor for ReaClickEditor {
     type Executor = Default;
     type Message = Message;
@@ -93,46 +134,17 @@ impl IcedEditor for ReaClickEditor {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let (buffer_str, tempo_str, pos_str, time_sig_str) = {
+        let strs = {
             let display_data = self.display_data.lock().expect("TBD");
-            let (tempo_str, pos_str, time_sig_str) =
-                if let Some(ref playhead) = display_data.playhead {
-                    (
-                        format!("Tempo: {} qpm", playhead.tempo),
-                        format!(
-                            "Song position: {:04}/{:05.2}/{:05.2}",
-                            playhead.bar_number,
-                            playhead.bar_start_pos_crotchets,
-                            playhead.pos_crotchets,
-                        ),
-                        format!(
-                            "Time signature: {}/{}",
-                            playhead.time_sig_numerator, playhead.time_sig_denominator
-                        ),
-                    )
-                } else {
-                    (
-                        String::from("(Tempo unavailable)"),
-                        String::from("(Song position unavailable)"),
-                        String::from("(Time signature unavailable)"),
-                    )
-                };
-            let buffer_str = format!(
-                "{} / {:?} / {} / {}",
-                display_data.sample_rate,
-                display_data.min_buffer_size,
-                display_data.max_buffer_size,
-                display_data.samples
-            );
-            (buffer_str, tempo_str, pos_str, time_sig_str)
+            DisplayStrings::from_display_data(&display_data)
         };
 
         Column::new()
             .push(Text::new("ReaClick"))
-            .push(Text::new(&buffer_str))
-            .push(Text::new(&tempo_str))
-            .push(Text::new(&pos_str))
-            .push(Text::new(&time_sig_str))
+            .push(Text::new(&strs.buffer))
+            .push(Text::new(&strs.tempo))
+            .push(Text::new(&strs.song_position))
+            .push(Text::new(&strs.time_sig))
             .into()
     }
 
