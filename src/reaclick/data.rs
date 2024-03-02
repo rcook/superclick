@@ -31,8 +31,8 @@ pub struct DisplayData {
     pub samples: usize,
     pub tempo: f64,
     pub bar_number: i32,
-    pub bar_start_pos_beats: f64,
-    pub pos_beats: f64,
+    pub bar_start_pos_crotchets: f64,
+    pub pos_crotchets: f64,
     pub time_sig_numerator: i32,
     pub time_sig_denominator: i32,
 }

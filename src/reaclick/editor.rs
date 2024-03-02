@@ -107,8 +107,8 @@ impl IcedEditor for ReaClickEditor {
                 format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     display_data.bar_number,
-                    display_data.bar_start_pos_beats,
-                    display_data.pos_beats,
+                    display_data.bar_start_pos_crotchets,
+                    display_data.pos_crotchets,
                 ),
                 format!(
                     "Time signature: {}/{}",

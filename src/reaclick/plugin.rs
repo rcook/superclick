@@ -22,9 +22,13 @@
 use super::data::{DisplayData, DisplayDataRef};
 use super::editor::{create_default_state, create_editor};
 use nih_plug::prelude::*;
-use nih_plug_iced::IcedState;
+use nih_plug_iced::{time, IcedState};
 use std::f32::consts;
 use std::sync::Arc;
+
+const BAR_FREQUENCY: f32 = 400f32;
+const ACCENT_FREQUENCY: f32 = 800f32;
+const NORMAL_FREQUENCY: f32 = 1600f32;
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
@@ -131,6 +135,9 @@ impl Plugin for ReaClick {
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
         let transport = context.transport();
+        let bar_start_pos_crotchets = transport.bar_start_pos_beats();
+        let pos_crotchets = transport.pos_beats();
+        let time_sig_numerator = transport.time_sig_numerator;
 
         if self.params.editor_state.is_open() {
             let mut info = self.info.lock().expect("TBD");
@@ -143,13 +150,13 @@ impl Plugin for ReaClick {
             if let Some(bar_number) = transport.bar_number() {
                 info.bar_number = bar_number;
             }
-            if let Some(bar_start_pos_beats) = transport.bar_start_pos_beats() {
-                info.bar_start_pos_beats = bar_start_pos_beats;
+            if let Some(value) = bar_start_pos_crotchets {
+                info.bar_start_pos_crotchets = value;
             }
-            if let Some(pos_beats) = transport.pos_beats() {
-                info.pos_beats = pos_beats;
+            if let Some(value) = pos_crotchets {
+                info.pos_crotchets = value;
             }
-            if let Some(time_sig_numerator) = transport.time_sig_numerator {
+            if let Some(time_sig_numerator) = time_sig_numerator {
                 info.time_sig_numerator = time_sig_numerator;
             }
             if let Some(time_sig_denominator) = transport.time_sig_denominator {
@@ -158,10 +165,43 @@ impl Plugin for ReaClick {
         }
 
         if transport.playing {
-            for channel_samples in buffer.iter_samples() {
-                let value = self.calculate_sine(880f32);
-                for sample in channel_samples {
-                    *sample = value;
+            fn beat_crotchets(time_sig_numerator: i32) -> f64 {
+                match time_sig_numerator {
+                    3 => 1f64,
+                    4 => 1f64,
+                    6 => 0.5f64,
+                    _ => 1f64, /* TBD */
+                }
+            }
+
+            fn is_accent(time_sig_numerator: i32, i: i32) -> bool {
+                match time_sig_numerator {
+                    3 => false,
+                    4 => i == 1 || i == 3,
+                    6 => i == 3,
+                    _ => false, /* TBD */
+                }
+            }
+
+            let x = pos_crotchets.expect("TBD") - bar_start_pos_crotchets.expect("TBD");
+            let time_sig_numerator = time_sig_numerator.expect("TBD");
+            let y = beat_crotchets(time_sig_numerator);
+            for i in 0..time_sig_numerator {
+                let f = if i == 0 {
+                    BAR_FREQUENCY
+                } else if is_accent(time_sig_numerator, i) {
+                    ACCENT_FREQUENCY
+                } else {
+                    NORMAL_FREQUENCY
+                };
+                let temp = (i as f64) * y;
+                if x >= temp + 0f64 && x <= temp + 0.125f64 {
+                    for channel_samples in buffer.iter_samples() {
+                        let value = self.calculate_sine(f);
+                        for sample in channel_samples {
+                            *sample = value;
+                        }
+                    }
                 }
             }
         }
