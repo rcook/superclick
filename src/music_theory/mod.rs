@@ -19,33 +19,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use crate::music_theory::{TimeSignatureBottom, TimeSignatureTop};
-use anyhow::{bail, Result};
-use std::sync::{Arc, Mutex};
+mod time_signature;
 
-pub type DisplayDataRef = Arc<Mutex<DisplayData>>;
-
-pub struct Playhead {
-    pub tempo: f64,
-    pub bar_number: i32,
-    pub bar_start_pos_crotchets: f64,
-    pub pos_crotchets: f64,
-    pub time_signature_top: TimeSignatureTop,
-    pub time_signature_bottom: TimeSignatureBottom,
-}
-
-#[derive(Default)]
-pub struct DisplayData {
-    pub sample_rate: f32,
-    pub min_buffer_size: Option<u32>,
-    pub max_buffer_size: u32,
-    pub samples: usize,
-    pub channels: usize,
-    pub playhead: Option<Playhead>,
-}
-
-impl DisplayData {
-    pub fn new() -> DisplayDataRef {
-        Arc::new(Mutex::new(Self::default()))
-    }
-}
+pub use time_signature::{TimeSignatureBottom, TimeSignatureTop};

@@ -19,8 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::{DisplayData, DisplayDataRef, Playhead, TimeSigCount, TimeSigValue};
+use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
+use crate::music_theory::{TimeSignatureBottom, TimeSignatureTop};
 use anyhow::{Context, Result};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
@@ -101,24 +102,22 @@ impl ReaClick {
                 .bar_start_pos_beats()
                 .context("bar start position is unavailable")?;
             let pos_crotchets = transport.pos_beats().context("position is unavailable")?;
-            let time_sig_numerator = TimeSigCount::new(
-                transport
-                    .time_sig_numerator
-                    .context("time signature numerator is unavailable")?,
-            )?;
-            let time_sig_denominator = TimeSigValue::new(
-                transport
-                    .time_sig_denominator
-                    .context("time signature denominator is unavailable")?,
-            )?;
+            let time_signature_top = transport
+                .time_sig_numerator
+                .context("time signature numerator is unavailable")?
+                .try_into()?;
+            let time_signature_bottom = transport
+                .time_sig_denominator
+                .context("time signature denominator is unavailable")?
+                .try_into()?;
 
             Some(Playhead {
                 tempo,
                 bar_number,
                 bar_start_pos_crotchets,
                 pos_crotchets,
-                time_sig_numerator,
-                time_sig_denominator,
+                time_signature_top,
+                time_signature_bottom,
             })
         } else {
             None
@@ -138,10 +137,10 @@ impl ReaClick {
     }
 
     fn write_samples(&mut self, playhead: &Playhead, buffer: &mut Buffer) {
-        fn get_click(time_sig_count: TimeSigCount, note_index: i32) -> Click {
+        fn get_click(time_signature_top: TimeSignatureTop, note_index: i32) -> Click {
             if note_index == 0 {
                 ACCENT_CLICK
-            } else if time_sig_count.is_subaccent(note_index) {
+            } else if time_signature_top.is_subaccent(note_index) {
                 SUBACCENT_CLICK
             } else {
                 NORMAL_CLICK
@@ -149,9 +148,9 @@ impl ReaClick {
         }
 
         let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
-        let y = playhead.time_sig_numerator.note_value();
-        for i in 0..playhead.time_sig_numerator.as_number() {
-            let click = get_click(playhead.time_sig_numerator, i);
+        let y = playhead.time_signature_top.note_value();
+        for i in 0..playhead.time_signature_top.as_number() {
+            let click = get_click(playhead.time_signature_top, i);
             let temp = (i as f64) * y;
             if x >= temp && x <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {

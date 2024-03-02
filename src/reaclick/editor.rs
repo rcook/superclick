@@ -92,8 +92,7 @@ impl DisplayStrings {
                 ),
                 time_sig: format!(
                     "Time signature: {}/{}",
-                    playhead.time_sig_numerator.as_number(),
-                    playhead.time_sig_denominator.as_number()
+                    playhead.time_signature_top, playhead.time_signature_bottom
                 ),
             }
         } else {
