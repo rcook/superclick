@@ -39,6 +39,42 @@ pub struct ReaClick {
 }
 
 impl ReaClick {
+    fn process_inner(&mut self, buffer: &mut Buffer, context: &mut impl ProcessContext<Self>) {
+        let transport = context.transport();
+        if transport.playing {
+            let samples = buffer.samples();
+            let tempo = transport.tempo.expect("song is playing");
+            let bar_number = transport.bar_number().expect("song is playing");
+            let bar_start_pos_crotchets = transport.bar_start_pos_beats().expect("song is playing");
+            let pos_crotchets = transport.pos_beats().expect("song is playing");
+            let time_sig_numerator = transport.time_sig_numerator.expect("song is playing");
+            let time_sig_denominator = transport.time_sig_denominator.expect("song is playing");
+
+            let playhead = Playhead {
+                tempo,
+                bar_number,
+                bar_start_pos_crotchets,
+                pos_crotchets,
+                time_sig_numerator,
+                time_sig_denominator,
+            };
+
+            self.write_samples(&playhead, buffer);
+
+            if self.params.editor_state.is_open() {
+                let mut info = self.info.lock().expect("TBD");
+                info.samples = samples;
+                info.playhead = Some(playhead);
+            }
+        } else {
+            if self.params.editor_state.is_open() {
+                let mut info = self.info.lock().expect("TBD");
+                info.samples = buffer.samples();
+                info.playhead = None
+            }
+        }
+    }
+
     fn calculate_sine(&mut self, frequency: f32) -> f32 {
         let phase_delta = frequency / self.sample_rate;
         let sine = (self.phase * consts::TAU).sin();
@@ -177,40 +213,7 @@ impl Plugin for ReaClick {
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
-        let transport = context.transport();
-        if transport.playing {
-            let samples = buffer.samples();
-            let tempo = transport.tempo.expect("song is playing");
-            let bar_number = transport.bar_number().expect("song is playing");
-            let bar_start_pos_crotchets = transport.bar_start_pos_beats().expect("song is playing");
-            let pos_crotchets = transport.pos_beats().expect("song is playing");
-            let time_sig_numerator = transport.time_sig_numerator.expect("song is playing");
-            let time_sig_denominator = transport.time_sig_denominator.expect("song is playing");
-
-            let playhead = Playhead {
-                tempo,
-                bar_number,
-                bar_start_pos_crotchets,
-                pos_crotchets,
-                time_sig_numerator,
-                time_sig_denominator,
-            };
-
-            self.write_samples(&playhead, buffer);
-
-            if self.params.editor_state.is_open() {
-                let mut info = self.info.lock().expect("TBD");
-                info.samples = samples;
-                info.playhead = Some(playhead);
-            }
-        } else {
-            if self.params.editor_state.is_open() {
-                let mut info = self.info.lock().expect("TBD");
-                info.samples = buffer.samples();
-                info.playhead = None
-            }
-        }
-
+        self.process_inner(buffer, context);
         ProcessStatus::Normal
     }
 }
