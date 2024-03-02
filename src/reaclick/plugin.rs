@@ -30,7 +30,7 @@ use std::sync::Arc;
 pub enum Panning {
     Left,
     Right,
-    Centre,
+    Both,
 }
 
 pub struct Click {
@@ -39,18 +39,25 @@ pub struct Click {
     length: f64,
 }
 
-const BAR_CLICK: Click = Click {
-    panning: Panning::Left,
+// Body Beat Pulse Solo settings
+
+// Body Beat Pulse Solo accent (high-intensity) click
+const ACCENT_CLICK: Click = Click {
+    panning: Panning::Right,
     frequency: 400f32,
     length: 0.125f64,
 };
-const ACCENT_CLICK: Click = Click {
-    panning: Panning::Right,
+
+// Body Beat Pulse Solo subaccent (medium-intensity) click
+const SUBACCENT_CLICK: Click = Click {
+    panning: Panning::Left,
     frequency: 800f32,
     length: 0.125f64,
 };
+
+// Body Beat Pulse Solo normal (low-intensity) click
 const NORMAL_CLICK: Click = Click {
-    panning: Panning::Centre,
+    panning: Panning::Both,
     frequency: 1_600f32,
     length: 0.125f64,
 };
@@ -149,9 +156,9 @@ impl ReaClick {
         let y = beat_crotchets(playhead.time_sig_numerator);
         for i in 0..playhead.time_sig_numerator {
             let click = if i == 0 {
-                BAR_CLICK
-            } else if is_accent(playhead.time_sig_numerator, i) {
                 ACCENT_CLICK
+            } else if is_accent(playhead.time_sig_numerator, i) {
+                SUBACCENT_CLICK
             } else {
                 NORMAL_CLICK
             };
@@ -165,7 +172,7 @@ impl ReaClick {
                         let is_audible = match click.panning {
                             Panning::Left => channel_id == 0,
                             Panning::Right => channel_id == 1,
-                            Panning::Centre => channel_id == 0 || channel_id == 1,
+                            Panning::Both => channel_id == 0 || channel_id == 1,
                         };
                         if is_audible {
                             *sample = value;
