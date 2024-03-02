@@ -21,7 +21,7 @@
 //
 use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
-use crate::music_theory::{TimeSignatureBottom, TimeSignatureTop};
+use crate::music_theory::TimeSignatureTop;
 use anyhow::{Context, Result};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
@@ -148,10 +148,10 @@ impl ReaClick {
         }
 
         let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
-        let y = playhead.time_signature_top.note_value();
+        let beat = playhead.time_signature_top.beat();
         for i in 0..playhead.time_signature_top.as_number() {
             let click = get_click(playhead.time_signature_top, i);
-            let temp = (i as f64) * y;
+            let temp = (i as f64) * beat;
             if x >= temp && x <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {
                     let value = self.calculate_sine(click.frequency);

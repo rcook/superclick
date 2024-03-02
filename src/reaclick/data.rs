@@ -20,7 +20,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use crate::music_theory::{TimeSignatureBottom, TimeSignatureTop};
-use anyhow::{bail, Result};
 use std::sync::{Arc, Mutex};
 
 pub type DisplayDataRef = Arc<Mutex<DisplayData>>;

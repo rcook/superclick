@@ -27,23 +27,17 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub struct TimeSignatureTop(i32);
 
 impl TimeSignatureTop {
-    pub fn new(number: i32) -> Result<Self> {
-        match number {
-            3 | 4 | 6 => Ok(Self(number)),
-            _ => bail!("invalid time signature numerator value {}", number),
-        }
-    }
-
+    #[allow(dead_code)]
     pub fn as_number(&self) -> i32 {
         self.0
     }
 
-    pub fn note_value(&self) -> f64 {
+    pub fn beat(&self) -> f64 {
         match self.0 {
             3 => 1f64,
             4 => 1f64,
             6 => 0.5f64,
-            _ => 1f64, /* TBD */
+            _ => unreachable!(),
         }
     }
 
@@ -52,7 +46,7 @@ impl TimeSignatureTop {
             3 => false,
             4 => note_index == 1 || note_index == 3,
             6 => note_index == 3,
-            _ => false, /* TBD */
+            _ => unreachable!(),
         }
     }
 }
@@ -79,13 +73,7 @@ impl Display for TimeSignatureTop {
 pub struct TimeSignatureBottom(i32);
 
 impl TimeSignatureBottom {
-    pub fn new(number: i32) -> Result<Self> {
-        match number {
-            2 | 4 | 8 | 16 => Ok(Self(number)),
-            _ => bail!("invalid time signature denominator value {}", number),
-        }
-    }
-
+    #[allow(dead_code)]
     pub fn as_number(&self) -> i32 {
         self.0
     }
@@ -101,6 +89,7 @@ impl TryFrom<i32> for TimeSignatureBottom {
         }
     }
 }
+
 impl Display for TimeSignatureBottom {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
