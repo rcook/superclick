@@ -23,18 +23,22 @@ use std::sync::{Arc, Mutex};
 
 pub type DisplayDataRef = Arc<Mutex<DisplayData>>;
 
-#[derive(Default)]
-pub struct DisplayData {
-    pub sample_rate: f32,
-    pub min_buffer_size: Option<u32>,
-    pub max_buffer_size: u32,
-    pub samples: usize,
+pub struct Playhead {
     pub tempo: f64,
     pub bar_number: i32,
     pub bar_start_pos_crotchets: f64,
     pub pos_crotchets: f64,
     pub time_sig_numerator: i32,
     pub time_sig_denominator: i32,
+}
+
+#[derive(Default)]
+pub struct DisplayData {
+    pub sample_rate: f32,
+    pub min_buffer_size: Option<u32>,
+    pub max_buffer_size: u32,
+    pub samples: usize,
+    pub playhead: Option<Playhead>,
 }
 
 impl DisplayData {

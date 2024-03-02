@@ -95,26 +95,36 @@ impl IcedEditor for ReaClickEditor {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let (buffer_str, tempo_str, pos_str, time_sig_str) = {
             let display_data = self.display_data.lock().expect("TBD");
-            (
-                format!(
-                    "{} / {:?} / {} / {}",
-                    display_data.sample_rate,
-                    display_data.min_buffer_size,
-                    display_data.max_buffer_size,
-                    display_data.samples
-                ),
-                format!("Tempo: {} qpm", display_data.tempo),
-                format!(
-                    "Song position: {:04}/{:05.2}/{:05.2}",
-                    display_data.bar_number,
-                    display_data.bar_start_pos_crotchets,
-                    display_data.pos_crotchets,
-                ),
-                format!(
-                    "Time signature: {}/{}",
-                    display_data.time_sig_numerator, display_data.time_sig_denominator
-                ),
-            )
+            let (tempo_str, pos_str, time_sig_str) =
+                if let Some(ref playhead) = display_data.playhead {
+                    (
+                        format!("Tempo: {} qpm", playhead.tempo),
+                        format!(
+                            "Song position: {:04}/{:05.2}/{:05.2}",
+                            playhead.bar_number,
+                            playhead.bar_start_pos_crotchets,
+                            playhead.pos_crotchets,
+                        ),
+                        format!(
+                            "Time signature: {}/{}",
+                            playhead.time_sig_numerator, playhead.time_sig_denominator
+                        ),
+                    )
+                } else {
+                    (
+                        String::from("(Tempo unavailable)"),
+                        String::from("(Song position unavailable)"),
+                        String::from("(Time signature unavailable)"),
+                    )
+                };
+            let buffer_str = format!(
+                "{} / {:?} / {} / {}",
+                display_data.sample_rate,
+                display_data.min_buffer_size,
+                display_data.max_buffer_size,
+                display_data.samples
+            );
+            (buffer_str, tempo_str, pos_str, time_sig_str)
         };
 
         Column::new()

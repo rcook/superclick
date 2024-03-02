@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::{DisplayData, DisplayDataRef};
+use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
@@ -49,6 +49,48 @@ impl ReaClick {
         }
 
         sine
+    }
+
+    fn write_samples(&mut self, playhead: &Playhead, buffer: &mut Buffer) {
+        fn beat_crotchets(time_sig_numerator: i32) -> f64 {
+            match time_sig_numerator {
+                3 => 1f64,
+                4 => 1f64,
+                6 => 0.5f64,
+                _ => 1f64, /* TBD */
+            }
+        }
+
+        fn is_accent(time_sig_numerator: i32, i: i32) -> bool {
+            match time_sig_numerator {
+                3 => false,
+                4 => i == 1 || i == 3,
+                6 => i == 3,
+                _ => false, /* TBD */
+            }
+        }
+
+        let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
+        let y = beat_crotchets(playhead.time_sig_numerator);
+        for i in 0..playhead.time_sig_numerator {
+            let f = if i == 0 {
+                BAR_FREQUENCY
+            } else if is_accent(playhead.time_sig_numerator, i) {
+                ACCENT_FREQUENCY
+            } else {
+                NORMAL_FREQUENCY
+            };
+            let temp = (i as f64) * y;
+            if x >= temp && x <= temp + CLICK_LENGTH {
+                for channel_samples in buffer.iter_samples() {
+                    let value = self.calculate_sine(f);
+                    for sample in channel_samples {
+                        *sample = value;
+                    }
+                }
+                break;
+            }
+        }
     }
 }
 
@@ -136,75 +178,36 @@ impl Plugin for ReaClick {
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
         let transport = context.transport();
-        let bar_start_pos_crotchets = transport.bar_start_pos_beats();
-        let pos_crotchets = transport.pos_beats();
-        let time_sig_numerator = transport.time_sig_numerator;
-
-        if self.params.editor_state.is_open() {
-            let mut info = self.info.lock().expect("TBD");
-
-            info.samples = buffer.samples();
-
-            if let Some(tempo) = transport.tempo {
-                info.tempo = tempo;
-            }
-            if let Some(bar_number) = transport.bar_number() {
-                info.bar_number = bar_number;
-            }
-            if let Some(value) = bar_start_pos_crotchets {
-                info.bar_start_pos_crotchets = value;
-            }
-            if let Some(value) = pos_crotchets {
-                info.pos_crotchets = value;
-            }
-            if let Some(time_sig_numerator) = time_sig_numerator {
-                info.time_sig_numerator = time_sig_numerator;
-            }
-            if let Some(time_sig_denominator) = transport.time_sig_denominator {
-                info.time_sig_denominator = time_sig_denominator;
-            }
-        }
-
         if transport.playing {
-            fn beat_crotchets(time_sig_numerator: i32) -> f64 {
-                match time_sig_numerator {
-                    3 => 1f64,
-                    4 => 1f64,
-                    6 => 0.5f64,
-                    _ => 1f64, /* TBD */
-                }
-            }
+            let samples = buffer.samples();
+            let tempo = transport.tempo.expect("song is playing");
+            let bar_number = transport.bar_number().expect("song is playing");
+            let bar_start_pos_crotchets = transport.bar_start_pos_beats().expect("song is playing");
+            let pos_crotchets = transport.pos_beats().expect("song is playing");
+            let time_sig_numerator = transport.time_sig_numerator.expect("song is playing");
+            let time_sig_denominator = transport.time_sig_denominator.expect("song is playing");
 
-            fn is_accent(time_sig_numerator: i32, i: i32) -> bool {
-                match time_sig_numerator {
-                    3 => false,
-                    4 => i == 1 || i == 3,
-                    6 => i == 3,
-                    _ => false, /* TBD */
-                }
-            }
+            let playhead = Playhead {
+                tempo,
+                bar_number,
+                bar_start_pos_crotchets,
+                pos_crotchets,
+                time_sig_numerator,
+                time_sig_denominator,
+            };
 
-            let x = pos_crotchets.expect("TBD") - bar_start_pos_crotchets.expect("TBD");
-            let time_sig_numerator = time_sig_numerator.expect("TBD");
-            let y = beat_crotchets(time_sig_numerator);
-            for i in 0..time_sig_numerator {
-                let f = if i == 0 {
-                    BAR_FREQUENCY
-                } else if is_accent(time_sig_numerator, i) {
-                    ACCENT_FREQUENCY
-                } else {
-                    NORMAL_FREQUENCY
-                };
-                let temp = (i as f64) * y;
-                if x >= temp && x <= temp + CLICK_LENGTH {
-                    for channel_samples in buffer.iter_samples() {
-                        let value = self.calculate_sine(f);
-                        for sample in channel_samples {
-                            *sample = value;
-                        }
-                    }
-                    break;
-                }
+            self.write_samples(&playhead, buffer);
+
+            if self.params.editor_state.is_open() {
+                let mut info = self.info.lock().expect("TBD");
+                info.samples = samples;
+                info.playhead = Some(playhead);
+            }
+        } else {
+            if self.params.editor_state.is_open() {
+                let mut info = self.info.lock().expect("TBD");
+                info.samples = buffer.samples();
+                info.playhead = None
             }
         }
 
