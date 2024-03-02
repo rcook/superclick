@@ -38,6 +38,7 @@ pub struct DisplayData {
     pub min_buffer_size: Option<u32>,
     pub max_buffer_size: u32,
     pub samples: usize,
+    pub channels: usize,
     pub playhead: Option<Playhead>,
 }
 

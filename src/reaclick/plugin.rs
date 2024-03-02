@@ -54,6 +54,7 @@ impl ReaClick {
         if self.params.editor_state.is_open() {
             let mut info = self.info.lock().expect("lock poisoned");
             info.samples = buffer.samples();
+            info.channels = buffer.channels();
             info.playhead = playhead;
         }
 

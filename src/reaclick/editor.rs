@@ -72,11 +72,14 @@ struct DisplayStrings {
 impl DisplayStrings {
     fn from_display_data(display_data: &DisplayData) -> Self {
         let buffer = format!(
-            "{} / {:?} / {} / {}",
+            "{} / {} / {} / {} / {}",
             display_data.sample_rate,
-            display_data.min_buffer_size,
+            display_data
+                .min_buffer_size
+                .map_or_else(|| String::from("(unavailable"), |x| format!("{x}")),
             display_data.max_buffer_size,
-            display_data.samples
+            display_data.samples,
+            display_data.channels,
         );
 
         if let Some(ref playhead) = display_data.playhead {
