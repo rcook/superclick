@@ -105,27 +105,25 @@ impl Plugin for ReaClick {
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
-        {
-            if self.params.editor_state.is_open() {
-                let mut transport_info = self.transport_info.lock().expect("TBD");
-                if let Some(tempo) = context.transport().tempo {
-                    transport_info.tempo = tempo;
-                }
-                if let Some(bar_number) = context.transport().bar_number() {
-                    transport_info.bar_number = bar_number;
-                }
-                if let Some(bar_start_pos_beats) = context.transport().bar_start_pos_beats() {
-                    transport_info.bar_start_pos_beats = bar_start_pos_beats;
-                }
-                if let Some(pos_beats) = context.transport().pos_beats() {
-                    transport_info.pos_beats = pos_beats;
-                }
-                if let Some(time_sig_numerator) = context.transport().time_sig_numerator {
-                    transport_info.time_sig_numerator = time_sig_numerator;
-                }
-                if let Some(time_sig_denominator) = context.transport().time_sig_denominator {
-                    transport_info.time_sig_denominator = time_sig_denominator;
-                }
+        if self.params.editor_state.is_open() {
+            let mut transport_info = self.transport_info.lock().expect("TBD");
+            if let Some(tempo) = context.transport().tempo {
+                transport_info.tempo = tempo;
+            }
+            if let Some(bar_number) = context.transport().bar_number() {
+                transport_info.bar_number = bar_number;
+            }
+            if let Some(bar_start_pos_beats) = context.transport().bar_start_pos_beats() {
+                transport_info.bar_start_pos_beats = bar_start_pos_beats;
+            }
+            if let Some(pos_beats) = context.transport().pos_beats() {
+                transport_info.pos_beats = pos_beats;
+            }
+            if let Some(time_sig_numerator) = context.transport().time_sig_numerator {
+                transport_info.time_sig_numerator = time_sig_numerator;
+            }
+            if let Some(time_sig_denominator) = context.transport().time_sig_denominator {
+                transport_info.time_sig_denominator = time_sig_denominator;
             }
         }
 
