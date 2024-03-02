@@ -19,15 +19,32 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::{TransportInfo, TransportInfoRef};
+use super::data::{DisplayData, DisplayDataRef};
 use super::editor::{create_default_state, create_editor};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
+use std::f32::consts;
 use std::sync::Arc;
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
-    transport_info: TransportInfoRef,
+    info: DisplayDataRef,
+    sample_rate: f32,
+    phase: f32,
+}
+
+impl ReaClick {
+    fn calculate_sine(&mut self, frequency: f32) -> f32 {
+        let phase_delta = frequency / self.sample_rate;
+        let sine = (self.phase * consts::TAU).sin();
+
+        self.phase += phase_delta;
+        if self.phase >= 1.0 {
+            self.phase -= 1.0;
+        }
+
+        sine
+    }
 }
 
 #[derive(Params)]
@@ -40,7 +57,9 @@ impl Default for ReaClick {
     fn default() -> Self {
         Self {
             params: Arc::new(ReaClickParams::default()),
-            transport_info: TransportInfo::new(),
+            info: DisplayData::new(),
+            sample_rate: 0f32,
+            phase: 0f32,
         }
     }
 }
@@ -85,7 +104,7 @@ impl Plugin for ReaClick {
     fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
         create_editor(
             self.params.clone(),
-            self.transport_info.clone(),
+            self.info.clone(),
             self.params.editor_state.clone(),
         )
     }
@@ -93,37 +112,58 @@ impl Plugin for ReaClick {
     fn initialize(
         &mut self,
         _audio_io_layout: &AudioIOLayout,
-        _buffer_config: &BufferConfig,
+        buffer_config: &BufferConfig,
         _context: &mut impl InitContext<Self>,
     ) -> bool {
+        self.sample_rate = buffer_config.sample_rate;
+
+        let mut info = self.info.lock().expect("TBD");
+        info.sample_rate = buffer_config.sample_rate;
+        info.min_buffer_size = buffer_config.min_buffer_size;
+        info.max_buffer_size = buffer_config.max_buffer_size;
         true
     }
 
     fn process(
         &mut self,
-        _buffer: &mut Buffer,
+        buffer: &mut Buffer,
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
+        let transport = context.transport();
+
         if self.params.editor_state.is_open() {
-            let mut transport_info = self.transport_info.lock().expect("TBD");
-            if let Some(tempo) = context.transport().tempo {
-                transport_info.tempo = tempo;
+            let mut info = self.info.lock().expect("TBD");
+
+            info.samples = buffer.samples();
+
+            if let Some(tempo) = transport.tempo {
+                info.tempo = tempo;
             }
-            if let Some(bar_number) = context.transport().bar_number() {
-                transport_info.bar_number = bar_number;
+            if let Some(bar_number) = transport.bar_number() {
+                info.bar_number = bar_number;
             }
-            if let Some(bar_start_pos_beats) = context.transport().bar_start_pos_beats() {
-                transport_info.bar_start_pos_beats = bar_start_pos_beats;
+            if let Some(bar_start_pos_beats) = transport.bar_start_pos_beats() {
+                info.bar_start_pos_beats = bar_start_pos_beats;
             }
-            if let Some(pos_beats) = context.transport().pos_beats() {
-                transport_info.pos_beats = pos_beats;
+            if let Some(pos_beats) = transport.pos_beats() {
+                info.pos_beats = pos_beats;
             }
-            if let Some(time_sig_numerator) = context.transport().time_sig_numerator {
-                transport_info.time_sig_numerator = time_sig_numerator;
+            if let Some(time_sig_numerator) = transport.time_sig_numerator {
+                info.time_sig_numerator = time_sig_numerator;
             }
-            if let Some(time_sig_denominator) = context.transport().time_sig_denominator {
-                transport_info.time_sig_denominator = time_sig_denominator;
+            if let Some(time_sig_denominator) = transport.time_sig_denominator {
+                info.time_sig_denominator = time_sig_denominator;
+            }
+        }
+
+        if transport.playing {
+            let value = self.calculate_sine(880f32);
+
+            for channel_samples in buffer.iter_samples() {
+                for sample in channel_samples {
+                    *sample = value;
+                }
             }
         }
 

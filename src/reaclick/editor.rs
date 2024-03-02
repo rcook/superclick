@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::TransportInfoRef;
+use super::data::DisplayDataRef;
 use super::plugin::ReaClickParams;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::executor::Default;
@@ -34,14 +34,14 @@ pub fn create_default_state() -> Arc<IcedState> {
 
 pub fn create_editor(
     params: Arc<ReaClickParams>,
-    transport_info: TransportInfoRef,
+    display_data: DisplayDataRef,
     editor_state: Arc<IcedState>,
 ) -> Option<Box<dyn Editor>> {
     create_iced_editor::<ReaClickEditor>(
         editor_state,
         ReaClickEditorInitializationFlags {
             params,
-            transport_info,
+            display_data,
         },
     )
 }
@@ -49,14 +49,14 @@ pub fn create_editor(
 #[derive(Clone)]
 struct ReaClickEditorInitializationFlags {
     params: Arc<ReaClickParams>,
-    transport_info: TransportInfoRef,
+    display_data: DisplayDataRef,
 }
 
 struct ReaClickEditor {
     #[allow(unused)]
     params: Arc<ReaClickParams>,
     context: Arc<dyn GuiContext>,
-    transport_info: TransportInfoRef,
+    display_data: DisplayDataRef,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -74,7 +74,7 @@ impl IcedEditor for ReaClickEditor {
         let editor = ReaClickEditor {
             params: initialization_flags.params,
             context,
-            transport_info: initialization_flags.transport_info,
+            display_data: initialization_flags.display_data,
         };
 
         (editor, Command::none())
@@ -93,25 +93,33 @@ impl IcedEditor for ReaClickEditor {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let (tempo_str, pos_str, time_sig_str) = {
-            let transport_info = self.transport_info.lock().expect("TBD");
+        let (buffer_str, tempo_str, pos_str, time_sig_str) = {
+            let display_data = self.display_data.lock().expect("TBD");
             (
-                format!("Tempo: {} qpm", transport_info.tempo),
+                format!(
+                    "{} / {:?} / {} / {}",
+                    display_data.sample_rate,
+                    display_data.min_buffer_size,
+                    display_data.max_buffer_size,
+                    display_data.samples
+                ),
+                format!("Tempo: {} qpm", display_data.tempo),
                 format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
-                    transport_info.bar_number,
-                    transport_info.bar_start_pos_beats,
-                    transport_info.pos_beats,
+                    display_data.bar_number,
+                    display_data.bar_start_pos_beats,
+                    display_data.pos_beats,
                 ),
                 format!(
                     "Time signature: {}/{}",
-                    transport_info.time_sig_numerator, transport_info.time_sig_denominator
+                    display_data.time_sig_numerator, display_data.time_sig_denominator
                 ),
             )
         };
 
         Column::new()
             .push(Text::new("ReaClick"))
+            .push(Text::new(&buffer_str))
             .push(Text::new(&tempo_str))
             .push(Text::new(&pos_str))
             .push(Text::new(&time_sig_str))

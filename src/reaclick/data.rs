@@ -21,10 +21,14 @@
 //
 use std::sync::{Arc, Mutex};
 
-pub type TransportInfoRef = Arc<Mutex<TransportInfo>>;
+pub type DisplayDataRef = Arc<Mutex<DisplayData>>;
 
 #[derive(Default)]
-pub struct TransportInfo {
+pub struct DisplayData {
+    pub sample_rate: f32,
+    pub min_buffer_size: Option<u32>,
+    pub max_buffer_size: u32,
+    pub samples: usize,
     pub tempo: f64,
     pub bar_number: i32,
     pub bar_start_pos_beats: f64,
@@ -33,8 +37,8 @@ pub struct TransportInfo {
     pub time_sig_denominator: i32,
 }
 
-impl TransportInfo {
-    pub fn new() -> TransportInfoRef {
+impl DisplayData {
+    pub fn new() -> DisplayDataRef {
         Arc::new(Mutex::new(Self::default()))
     }
 }
