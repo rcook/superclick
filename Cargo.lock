@@ -1221,7 +1221,6 @@ dependencies = [
 name = "reaclick"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "nih_plug",
  "nih_plug_iced",
 ]

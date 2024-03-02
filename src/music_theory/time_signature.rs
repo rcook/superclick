@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use anyhow::{bail, Error as AnyhowError, Result};
+use crate::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 /// A time signature's top number (i.e. the count)
@@ -52,12 +52,12 @@ impl TimeSignatureTop {
 }
 
 impl TryFrom<i32> for TimeSignatureTop {
-    type Error = AnyhowError;
+    type Error = Error;
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             3 | 4 | 6 => Ok(Self(value)),
-            _ => bail!("invalid time signature numerator value {}", value),
+            _ => Err(Error::InvalidTimeSignatureTop),
         }
     }
 }
@@ -80,12 +80,12 @@ impl TimeSignatureBottom {
 }
 
 impl TryFrom<i32> for TimeSignatureBottom {
-    type Error = AnyhowError;
+    type Error = Error;
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             2 | 4 | 8 | 16 => Ok(Self(value)),
-            _ => bail!("invalid time signature denominator value {}", value),
+            _ => Err(Error::InvalidTimeSignatureBottom),
         }
     }
 }

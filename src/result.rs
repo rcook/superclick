@@ -19,12 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-mod error;
-mod music_theory;
-mod reaclick;
-mod result;
+use super::error::Error;
+use std::result::Result as StdResult;
 
-use nih_plug::nih_export_clap;
-use reaclick::ReaClick;
-
-nih_export_clap!(ReaClick);
+pub type Result<T> = StdResult<T, Error>;

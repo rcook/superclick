@@ -21,8 +21,9 @@
 //
 use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
+use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
-use anyhow::{Context, Result};
+use crate::result::Result;
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::f32::consts;
@@ -94,30 +95,32 @@ impl ReaClick {
 
     fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
         Ok(if transport.playing {
-            let tempo = transport.tempo.context("tempo is unavailable")?;
-            let bar_number = transport
-                .bar_number()
-                .context("bar number is unavailable")?;
-            let bar_start_pos_crotchets = transport
-                .bar_start_pos_beats()
-                .context("bar start position is unavailable")?;
-            let pos_crotchets = transport.pos_beats().context("position is unavailable")?;
-            let time_signature_top = transport
-                .time_sig_numerator
-                .context("time signature numerator is unavailable")?
-                .try_into()?;
-            let time_signature_bottom = transport
-                .time_sig_denominator
-                .context("time signature denominator is unavailable")?
-                .try_into()?;
+            let Some(tempo) = transport.tempo else {
+                return Err(Error::TempoUnavailable);
+            };
+            let Some(bar_number) = transport.bar_number() else {
+                return Err(Error::BarNumberUnavailable);
+            };
+            let Some(bar_start_pos_crotchets) = transport.bar_start_pos_beats() else {
+                return Err(Error::BarStartPosBeatsUnavailable);
+            };
+            let Some(pos_crotchets) = transport.pos_beats() else {
+                return Err(Error::PosBeatsUnavailable);
+            };
+            let Some(time_sig_numerator) = transport.time_sig_numerator else {
+                return Err(Error::TimeSigNumeratorUnavailable);
+            };
+            let Some(time_sig_denominator) = transport.time_sig_denominator else {
+                return Err(Error::TimeSignDenominatorUnavailable);
+            };
 
             Some(Playhead {
                 tempo,
                 bar_number,
                 bar_start_pos_crotchets,
                 pos_crotchets,
-                time_signature_top,
-                time_signature_bottom,
+                time_signature_top: time_sig_numerator.try_into()?,
+                time_signature_bottom: time_sig_denominator.try_into()?,
             })
         } else {
             None
@@ -256,9 +259,16 @@ impl Plugin for ReaClick {
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
+        nih_log!("process");
         match self.process_inner(buffer, context) {
-            Ok(()) => ProcessStatus::Normal,
-            Err(_) => ProcessStatus::Error("something went wrong"),
+            Ok(()) => {
+                nih_log!("good");
+                ProcessStatus::Normal
+            }
+            Err(_) => {
+                nih_log!("error");
+                ProcessStatus::Error("error")
+            }
         }
     }
 }
