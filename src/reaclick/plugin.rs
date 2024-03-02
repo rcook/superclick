@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::{DisplayData, DisplayDataRef, Playhead};
+use super::data::{DisplayData, DisplayDataRef, Playhead, TimeSigCount, TimeSigValue};
 use super::editor::{create_default_state, create_editor};
 use anyhow::{Context, Result};
 use nih_plug::prelude::*;
@@ -101,12 +101,16 @@ impl ReaClick {
                 .bar_start_pos_beats()
                 .context("bar start position is unavailable")?;
             let pos_crotchets = transport.pos_beats().context("position is unavailable")?;
-            let time_sig_numerator = transport
-                .time_sig_numerator
-                .context("time signature numerator is unavailable")?;
-            let time_sig_denominator = transport
-                .time_sig_denominator
-                .context("time signature denominator is unavailable")?;
+            let time_sig_numerator = TimeSigCount::new(
+                transport
+                    .time_sig_numerator
+                    .context("time signature numerator is unavailable")?,
+            )?;
+            let time_sig_denominator = TimeSigValue::new(
+                transport
+                    .time_sig_denominator
+                    .context("time signature denominator is unavailable")?,
+            )?;
 
             Some(Playhead {
                 tempo,
@@ -134,34 +138,20 @@ impl ReaClick {
     }
 
     fn write_samples(&mut self, playhead: &Playhead, buffer: &mut Buffer) {
-        fn beat_crotchets(time_sig_numerator: i32) -> f64 {
-            match time_sig_numerator {
-                3 => 1f64,
-                4 => 1f64,
-                6 => 0.5f64,
-                _ => 1f64, /* TBD */
-            }
-        }
-
-        fn is_accent(time_sig_numerator: i32, i: i32) -> bool {
-            match time_sig_numerator {
-                3 => false,
-                4 => i == 1 || i == 3,
-                6 => i == 3,
-                _ => false, /* TBD */
+        fn get_click(time_sig_count: TimeSigCount, note_index: i32) -> Click {
+            if note_index == 0 {
+                ACCENT_CLICK
+            } else if time_sig_count.is_subaccent(note_index) {
+                SUBACCENT_CLICK
+            } else {
+                NORMAL_CLICK
             }
         }
 
         let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
-        let y = beat_crotchets(playhead.time_sig_numerator);
-        for i in 0..playhead.time_sig_numerator {
-            let click = if i == 0 {
-                ACCENT_CLICK
-            } else if is_accent(playhead.time_sig_numerator, i) {
-                SUBACCENT_CLICK
-            } else {
-                NORMAL_CLICK
-            };
+        let y = playhead.time_sig_numerator.note_value();
+        for i in 0..playhead.time_sig_numerator.as_number() {
+            let click = get_click(playhead.time_sig_numerator, i);
             let temp = (i as f64) * y;
             if x >= temp && x <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {

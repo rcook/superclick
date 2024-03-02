@@ -19,17 +19,67 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use anyhow::{bail, Result};
 use std::sync::{Arc, Mutex};
 
 pub type DisplayDataRef = Arc<Mutex<DisplayData>>;
 
+#[derive(Clone, Copy)]
+pub struct TimeSigCount(i32);
+
+impl TimeSigCount {
+    pub fn new(number: i32) -> Result<Self> {
+        match number {
+            3 | 4 | 6 => Ok(Self(number)),
+            _ => bail!("invalid time signature numerator {}", number),
+        }
+    }
+
+    pub fn as_number(&self) -> i32 {
+        self.0
+    }
+
+    pub fn note_value(&self) -> f64 {
+        match self.0 {
+            3 => 1f64,
+            4 => 1f64,
+            6 => 0.5f64,
+            _ => 1f64, /* TBD */
+        }
+    }
+
+    pub fn is_subaccent(&self, note_index: i32) -> bool {
+        match self.0 {
+            3 => false,
+            4 => note_index == 1 || note_index == 3,
+            6 => note_index == 3,
+            _ => false, /* TBD */
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct TimeSigValue(i32);
+
+impl TimeSigValue {
+    pub fn new(number: i32) -> Result<Self> {
+        match number {
+            2 | 4 | 8 | 16 => Ok(Self(number)),
+            _ => bail!("invalid time signature denominator {}", number),
+        }
+    }
+
+    pub fn as_number(&self) -> i32 {
+        self.0
+    }
+}
 pub struct Playhead {
     pub tempo: f64,
     pub bar_number: i32,
     pub bar_start_pos_crotchets: f64,
     pub pos_crotchets: f64,
-    pub time_sig_numerator: i32,
-    pub time_sig_denominator: i32,
+    pub time_sig_numerator: TimeSigCount,
+    pub time_sig_denominator: TimeSigValue,
 }
 
 #[derive(Default)]
