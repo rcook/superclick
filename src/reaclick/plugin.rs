@@ -62,13 +62,20 @@ impl ReaClick {
 
     fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
         Ok(if transport.playing {
-            let tempo = transport.tempo.context("song is playing")?;
-            let bar_number = transport.bar_number().context("song is playing")?;
-            let bar_start_pos_crotchets =
-                transport.bar_start_pos_beats().context("song is playing")?;
-            let pos_crotchets = transport.pos_beats().context("song is playing")?;
-            let time_sig_numerator = transport.time_sig_numerator.context("song is playing")?;
-            let time_sig_denominator = transport.time_sig_denominator.context("song is playing")?;
+            let tempo = transport.tempo.context("tempo is unavailable")?;
+            let bar_number = transport
+                .bar_number()
+                .context("bar number is unavailable")?;
+            let bar_start_pos_crotchets = transport
+                .bar_start_pos_beats()
+                .context("bar start position is unavailable")?;
+            let pos_crotchets = transport.pos_beats().context("position is unavailable")?;
+            let time_sig_numerator = transport
+                .time_sig_numerator
+                .context("time signature numerator is unavailable")?;
+            let time_sig_denominator = transport
+                .time_sig_denominator
+                .context("time signature denominator is unavailable")?;
 
             Some(Playhead {
                 tempo,
