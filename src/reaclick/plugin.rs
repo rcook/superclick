@@ -203,6 +203,7 @@ impl Plugin for ReaClick {
                             *sample = value;
                         }
                     }
+                    break;
                 }
             }
         }
