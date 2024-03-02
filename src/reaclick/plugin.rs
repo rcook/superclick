@@ -21,6 +21,7 @@
 //
 use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
+use anyhow::{Context, Result};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::f32::consts;
@@ -39,40 +40,47 @@ pub struct ReaClick {
 }
 
 impl ReaClick {
-    fn process_inner(&mut self, buffer: &mut Buffer, context: &mut impl ProcessContext<Self>) {
-        let transport = context.transport();
-        if transport.playing {
-            let samples = buffer.samples();
-            let tempo = transport.tempo.expect("song is playing");
-            let bar_number = transport.bar_number().expect("song is playing");
-            let bar_start_pos_crotchets = transport.bar_start_pos_beats().expect("song is playing");
-            let pos_crotchets = transport.pos_beats().expect("song is playing");
-            let time_sig_numerator = transport.time_sig_numerator.expect("song is playing");
-            let time_sig_denominator = transport.time_sig_denominator.expect("song is playing");
+    fn process_inner(
+        &mut self,
+        buffer: &mut Buffer,
+        context: &mut impl ProcessContext<Self>,
+    ) -> Result<()> {
+        let playhead = self.get_playhead(context.transport())?;
 
-            let playhead = Playhead {
+        if let Some(ref playhead) = playhead {
+            self.write_samples(playhead, buffer);
+        }
+
+        if self.params.editor_state.is_open() {
+            let mut info = self.info.lock().expect("lock poisoned");
+            info.samples = buffer.samples();
+            info.playhead = playhead;
+        }
+
+        Ok(())
+    }
+
+    fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
+        Ok(if transport.playing {
+            let tempo = transport.tempo.context("song is playing")?;
+            let bar_number = transport.bar_number().context("song is playing")?;
+            let bar_start_pos_crotchets =
+                transport.bar_start_pos_beats().context("song is playing")?;
+            let pos_crotchets = transport.pos_beats().context("song is playing")?;
+            let time_sig_numerator = transport.time_sig_numerator.context("song is playing")?;
+            let time_sig_denominator = transport.time_sig_denominator.context("song is playing")?;
+
+            Some(Playhead {
                 tempo,
                 bar_number,
                 bar_start_pos_crotchets,
                 pos_crotchets,
                 time_sig_numerator,
                 time_sig_denominator,
-            };
-
-            self.write_samples(&playhead, buffer);
-
-            if self.params.editor_state.is_open() {
-                let mut info = self.info.lock().expect("TBD");
-                info.samples = samples;
-                info.playhead = Some(playhead);
-            }
+            })
         } else {
-            if self.params.editor_state.is_open() {
-                let mut info = self.info.lock().expect("TBD");
-                info.samples = buffer.samples();
-                info.playhead = None
-            }
-        }
+            None
+        })
     }
 
     fn calculate_sine(&mut self, frequency: f32) -> f32 {
@@ -199,8 +207,7 @@ impl Plugin for ReaClick {
         _context: &mut impl InitContext<Self>,
     ) -> bool {
         self.sample_rate = buffer_config.sample_rate;
-
-        let mut info = self.info.lock().expect("TBD");
+        let mut info = self.info.lock().expect("lock poisoned");
         info.sample_rate = buffer_config.sample_rate;
         info.min_buffer_size = buffer_config.min_buffer_size;
         info.max_buffer_size = buffer_config.max_buffer_size;
@@ -213,8 +220,10 @@ impl Plugin for ReaClick {
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
-        self.process_inner(buffer, context);
-        ProcessStatus::Normal
+        match self.process_inner(buffer, context) {
+            Ok(()) => ProcessStatus::Normal,
+            Err(_) => ProcessStatus::Error("something went wrong"),
+        }
     }
 }
 
