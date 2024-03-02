@@ -27,10 +27,33 @@ use nih_plug_iced::IcedState;
 use std::f32::consts;
 use std::sync::Arc;
 
-const BAR_FREQUENCY: f32 = 400f32;
-const ACCENT_FREQUENCY: f32 = 800f32;
-const NORMAL_FREQUENCY: f32 = 1600f32;
-const CLICK_LENGTH: f64 = 0.125f64;
+pub enum Panning {
+    Left,
+    Right,
+    Centre,
+}
+
+pub struct Click {
+    panning: Panning,
+    frequency: f32,
+    length: f64,
+}
+
+const BAR_CLICK: Click = Click {
+    panning: Panning::Left,
+    frequency: 400f32,
+    length: 0.125f64,
+};
+const ACCENT_CLICK: Click = Click {
+    panning: Panning::Right,
+    frequency: 800f32,
+    length: 0.125f64,
+};
+const NORMAL_CLICK: Click = Click {
+    panning: Panning::Centre,
+    frequency: 1_600f32,
+    length: 0.125f64,
+};
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
@@ -125,19 +148,28 @@ impl ReaClick {
         let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
         let y = beat_crotchets(playhead.time_sig_numerator);
         for i in 0..playhead.time_sig_numerator {
-            let f = if i == 0 {
-                BAR_FREQUENCY
+            let click = if i == 0 {
+                BAR_CLICK
             } else if is_accent(playhead.time_sig_numerator, i) {
-                ACCENT_FREQUENCY
+                ACCENT_CLICK
             } else {
-                NORMAL_FREQUENCY
+                NORMAL_CLICK
             };
             let temp = (i as f64) * y;
-            if x >= temp && x <= temp + CLICK_LENGTH {
+            if x >= temp && x <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {
-                    let value = self.calculate_sine(f);
-                    for sample in channel_samples {
-                        *sample = value;
+                    let value = self.calculate_sine(click.frequency);
+
+                    // There's probably a more efficient way to do this...
+                    for (channel_id, sample) in channel_samples.into_iter().enumerate() {
+                        let is_audible = match click.panning {
+                            Panning::Left => channel_id == 0,
+                            Panning::Right => channel_id == 1,
+                            Panning::Centre => channel_id == 0 || channel_id == 1,
+                        };
+                        if is_audible {
+                            *sample = value;
+                        }
                     }
                 }
                 break;
