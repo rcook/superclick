@@ -66,7 +66,7 @@ struct DisplayStrings {
     buffer: String,
     tempo: String,
     song_position: String,
-    time_sig: String,
+    time_signature: String,
 }
 
 impl DisplayStrings {
@@ -90,7 +90,7 @@ impl DisplayStrings {
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
                 ),
-                time_sig: format!(
+                time_signature: format!(
                     "Time signature: {}/{}",
                     playhead.time_signature_top, playhead.time_signature_bottom
                 ),
@@ -100,7 +100,7 @@ impl DisplayStrings {
                 buffer,
                 tempo: String::from("(Tempo unavailable)"),
                 song_position: String::from("(Song position unavailable)"),
-                time_sig: String::from("(Time signature unavailable)"),
+                time_signature: String::from("(Time signature unavailable)"),
             }
         }
     }
@@ -147,7 +147,7 @@ impl IcedEditor for ReaClickEditor {
             .push(Text::new(&strs.buffer))
             .push(Text::new(&strs.tempo))
             .push(Text::new(&strs.song_position))
-            .push(Text::new(&strs.time_sig))
+            .push(Text::new(&strs.time_signature))
             .into()
     }
 
