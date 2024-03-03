@@ -145,7 +145,7 @@ impl IcedEditor for ReaClickEditor {
         };
 
         let mut column = Column::new()
-            .push(Text::new("ReaClick"))
+            .push(Text::new("ReaClick").size(40))
             .push(Text::new(&strs.buffer))
             .push(Text::new(&strs.tempo))
             .push(Text::new(&strs.song_position))
