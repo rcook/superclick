@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::data::{DisplayData, DisplayDataRef};
+use super::display_data::{DisplayData, DisplayDataRef};
 use super::params::ReaClickParams;
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};

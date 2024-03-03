@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use super::click::{Channel, Click};
-use super::data::{DisplayData, DisplayDataRef, Playhead};
+use super::display_data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::create_editor;
 use super::params::ReaClickParams;
 use crate::error::Error;
