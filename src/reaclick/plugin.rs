@@ -120,11 +120,11 @@ impl ReaClick {
             }
         }
 
-        let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
+        let pos_in_bar_crotchets = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
         for i in 0..playhead.time_signature_top.as_number() {
             let click = get_click(playhead.time_signature_top, i);
             let temp = i as f64 * 4f64 / playhead.time_signature_bottom.as_number() as f64;
-            if x >= temp && x <= temp + click.length {
+            if pos_in_bar_crotchets >= temp && pos_in_bar_crotchets <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {
                     let value = self.calculate_sine(click.frequency);
 
