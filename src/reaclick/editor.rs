@@ -73,6 +73,7 @@ struct DisplayStrings {
     tempo: String,
     song_position: String,
     time_signature: String,
+    big: Option<String>,
     error: Option<String>,
 }
 
@@ -100,6 +101,14 @@ impl DisplayStrings {
                     "Time signature: {}/{}",
                     playhead.time_signature_top, playhead.time_signature_bottom
                 ),
+                big: Some(format!(
+                    "{}/{}",
+                    ((playhead.pos_crotchets - playhead.bar_start_pos_crotchets)
+                        / playhead.time_signature_top.beat())
+                    .trunc() as i32
+                        + 1,
+                    playhead.time_signature_bottom.as_number()
+                )),
                 error,
             }
         } else {
@@ -108,6 +117,7 @@ impl DisplayStrings {
                 tempo: String::from("(Tempo unavailable)"),
                 song_position: String::from("(Song position unavailable)"),
                 time_signature: String::from("(Time signature unavailable)"),
+                big: None,
                 error,
             }
         }
@@ -172,6 +182,10 @@ impl IcedEditor for ReaClickEditor {
             .push(Text::new(&strs.song_position))
             .push(Text::new(&strs.time_signature))
             .push(Text::new(&strs.buffer));
+
+        if let Some(s) = strs.big {
+            column = column.push(Text::new(s).size(100));
+        }
 
         column.into()
     }
