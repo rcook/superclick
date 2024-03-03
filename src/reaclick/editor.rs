@@ -94,7 +94,7 @@ impl DisplayStrings {
                     "Time signature: {}/{}",
                     playhead.time_signature_top, playhead.time_signature_bottom
                 ),
-                error: error,
+                error,
             }
         } else {
             Self {
@@ -102,7 +102,7 @@ impl DisplayStrings {
                 tempo: String::from("(Tempo unavailable)"),
                 song_position: String::from("(Song position unavailable)"),
                 time_signature: String::from("(Time signature unavailable)"),
-                error: error,
+                error,
             }
         }
     }
