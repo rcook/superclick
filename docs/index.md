@@ -18,12 +18,12 @@ _Note that this plugin has only been tested thoroughly(ish) on Windows running
 This plugin has been developed primarily to target Windows x64.
 
 1. Start REAPER
-2. Go to _Options | Preferences&hellip;_
-3. Go to _Plug-ins | LV2/CLAP_
+2. Go to _Options \| Preferences&hellip;_
+3. Go to _Plug-ins \| LV2/CLAP_
 4. Add the path to the bundle (e.g. `X:\path\to\reaclick\target\bundled`) to the list
 of directories under _CLAP plug-in paths (can be multiple paths separated by
 semicolons)_
-5. Click _Re-scan | Re-scan CLAP paths for new/modified plug-ins_
+5. Click _Re-scan \| Re-scan CLAP paths for new/modified plug-ins_
 6. Double-click in the track panel to create a new, empty track
 7. Click on the _FX_ button and add an instance of _CLAP: ReaClick (Richard Cook)_
 
