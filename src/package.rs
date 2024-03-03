@@ -19,7 +19,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-#[allow(dead_code)]
 pub const PACKAGE_NAME: &str = env!("CARGO_PKG_NAME");
 
 #[allow(dead_code)]
@@ -29,5 +28,4 @@ pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub const PACKAGE_HOME_PAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 
-#[allow(dead_code)]
 pub const PACKAGE_BUILD_VERSION: Option<&str> = option_env!("RUST_TOOL_ACTION_BUILD_VERSION");

@@ -21,7 +21,7 @@
 //
 use super::display_data::{DisplayData, DisplayDataRef};
 use super::params::ReaClickParams;
-use crate::package::PACKAGE_HOME_PAGE;
+use crate::package::{PACKAGE_BUILD_VERSION, PACKAGE_HOME_PAGE, PACKAGE_NAME, PACKAGE_VERSION};
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::button;
@@ -70,6 +70,7 @@ enum Message {
 }
 
 struct DisplayStrings {
+    title: String,
     song_position: String,
     tempo: Option<String>,
     big: Option<String>,
@@ -78,6 +79,13 @@ struct DisplayStrings {
 
 impl DisplayStrings {
     fn from_display_data(display_data: &DisplayData) -> Self {
+        let title = match PACKAGE_BUILD_VERSION {
+            Some(ref build_version) => {
+                format!("{} v{} ({})", PACKAGE_NAME, PACKAGE_VERSION, build_version)
+            }
+            None => format!("{} v{}", PACKAGE_NAME, PACKAGE_VERSION),
+        };
+
         let error = display_data
             .error
             .as_ref()
@@ -85,6 +93,7 @@ impl DisplayStrings {
 
         if let Some(ref playhead) = display_data.playhead {
             Self {
+                title,
                 song_position: format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
@@ -109,6 +118,7 @@ impl DisplayStrings {
             }
         } else {
             Self {
+                title,
                 song_position: String::from("(Idle)"),
                 tempo: None,
                 big: None,
@@ -162,7 +172,7 @@ impl IcedEditor for ReaClickEditor {
             DisplayStrings::from_display_data(&display_data)
         };
 
-        let mut column = Column::new();
+        let mut column = Column::new().push(Text::new(strs.title));
 
         if let Some(ref s) = strs.error {
             column = column.push(Text::new(s)).push(
