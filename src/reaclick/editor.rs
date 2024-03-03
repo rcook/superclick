@@ -69,8 +69,8 @@ enum Message {
 }
 
 struct DisplayStrings {
-    tempo: String,
     song_position: String,
+    tempo: Option<String>,
     big: Option<String>,
     error: Option<String>,
 }
@@ -84,16 +84,16 @@ impl DisplayStrings {
 
         if let Some(ref playhead) = display_data.playhead {
             Self {
-                tempo: format!(
-                    "Tempo: {:.1} qpm / {:.1} bpm",
-                    playhead.tempo,
-                    playhead.tempo * playhead.time_signature_bottom.as_number() as f64
-                        / (4 * playhead.time_signature_top.basis()) as f64
-                ),
                 song_position: format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
                 ),
+                tempo: Some(format!(
+                    "Tempo: {:.1} qpm / {:.1} bpm",
+                    playhead.tempo,
+                    playhead.tempo * playhead.time_signature_bottom.as_number() as f64
+                        / (4 * playhead.time_signature_top.basis()) as f64
+                )),
                 big: Some(format!(
                     "{} of {}/{}",
                     ((playhead.pos_crotchets - playhead.bar_start_pos_crotchets)
@@ -108,8 +108,8 @@ impl DisplayStrings {
             }
         } else {
             Self {
-                tempo: String::from("(Tempo unavailable)"),
-                song_position: String::from("(Song position unavailable)"),
+                song_position: String::from("(Idle)"),
+                tempo: None,
                 big: None,
                 error,
             }
@@ -163,18 +163,20 @@ impl IcedEditor for ReaClickEditor {
 
         let mut column = Column::new();
 
-        if let Some(e) = strs.error {
-            column = column.push(Text::new(e)).push(
+        if let Some(ref s) = strs.error {
+            column = column.push(Text::new(s)).push(
                 Button::new(&mut self.report_bug_button_state, Text::new("Report bug"))
                     .on_press(Self::Message::ReportBugButtonPressed),
             );
         }
 
-        column = column
-            .push(Text::new(&strs.tempo))
-            .push(Text::new(&strs.song_position));
+        column = column.push(Text::new(&strs.song_position));
 
-        if let Some(s) = strs.big {
+        if let Some(ref s) = strs.tempo {
+            column = column.push(Text::new(s))
+        }
+
+        if let Some(ref s) = strs.big {
             column = column.push(Text::new(s).size(150));
         }
 
