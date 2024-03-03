@@ -5,7 +5,7 @@ edition = "2021"
 homepage = "https://github.com/rcook/reaclick"
 license = "MIT"
 name = "reaclick"
-version = "0.1.0"
+version = "0.0.0"
 
 [workspace]
 members = ["xtask"]
