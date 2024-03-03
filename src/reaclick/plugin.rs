@@ -23,7 +23,7 @@ use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
 use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
-use crate::result::{GetOrError, Result};
+use crate::result::{GetOr, Result};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::f32::consts;
@@ -106,22 +106,18 @@ impl ReaClick {
 
     fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
         Ok(if transport.playing {
-            let tempo = transport.tempo.get_or_error(Error::TempoUnavailable)?;
-            let bar_number = transport
-                .bar_number()
-                .get_or_error(Error::BarNumberUnavailable)?;
+            let tempo = transport.tempo.get_or(Error::TempoUnavailable)?;
+            let bar_number = transport.bar_number().get_or(Error::BarNumberUnavailable)?;
             let bar_start_pos_crotchets = transport
                 .bar_start_pos_beats()
-                .get_or_error(Error::BarStartPosBeatsUnavailable)?;
-            let pos_crotchets = transport
-                .pos_beats()
-                .get_or_error(Error::PosBeatsUnavailable)?;
+                .get_or(Error::BarStartPosBeatsUnavailable)?;
+            let pos_crotchets = transport.pos_beats().get_or(Error::PosBeatsUnavailable)?;
             let time_sig_numerator = transport
                 .time_sig_numerator
-                .get_or_error(Error::TimeSigNumeratorUnavailable)?;
+                .get_or(Error::TimeSigNumeratorUnavailable)?;
             let time_sig_denominator = transport
                 .time_sig_denominator
-                .get_or_error(Error::TimeSignDenominatorUnavailable)?;
+                .get_or(Error::TimeSignDenominatorUnavailable)?;
             Some(Playhead {
                 tempo,
                 bar_number,

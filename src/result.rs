@@ -24,12 +24,12 @@ use std::result::Result as StdResult;
 
 pub type Result<T> = StdResult<T, Error>;
 
-pub trait GetOrError<T> {
-    fn get_or_error(self, e: Error) -> Result<T>;
+pub trait GetOr<T> {
+    fn get_or(self, e: Error) -> Result<T>;
 }
 
-impl<T> GetOrError<T> for Option<T> {
-    fn get_or_error(self, e: Error) -> Result<T> {
+impl<T> GetOr<T> for Option<T> {
+    fn get_or(self, e: Error) -> Result<T> {
         match self {
             Some(value) => Ok(value),
             None => Err(e),
