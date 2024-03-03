@@ -19,50 +19,16 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::click::{Channel, Click};
 use super::data::{DisplayData, DisplayDataRef, Playhead};
-use super::editor::{create_default_state, create_editor};
+use super::editor::create_editor;
+use super::params::ReaClickParams;
 use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
 use crate::result::{GetOr, Result};
 use nih_plug::prelude::*;
-use nih_plug_iced::IcedState;
 use std::f32::consts;
 use std::sync::Arc;
-
-pub enum Channel {
-    Left,
-    Right,
-    Both,
-}
-
-pub struct Click {
-    channel: Channel,
-    frequency: f32,
-    length: f64,
-}
-
-// Body Beat Pulse Solo settings
-
-// Body Beat Pulse Solo accent (high-intensity) click
-const ACCENT_CLICK: Click = Click {
-    channel: Channel::Right,
-    frequency: 400f32,
-    length: 0.125f64,
-};
-
-// Body Beat Pulse Solo subaccent (medium-intensity) click
-const SUBACCENT_CLICK: Click = Click {
-    channel: Channel::Left,
-    frequency: 800f32,
-    length: 0.125f64,
-};
-
-// Body Beat Pulse Solo normal (low-intensity) click
-const NORMAL_CLICK: Click = Click {
-    channel: Channel::Both,
-    frequency: 1_600f32,
-    length: 0.125f64,
-};
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
@@ -146,11 +112,11 @@ impl ReaClick {
     fn write_samples(&mut self, playhead: &Playhead, buffer: &mut Buffer) {
         fn get_click(time_signature_top: TimeSignatureTop, note_index: i32) -> Click {
             if note_index == 0 {
-                ACCENT_CLICK
+                Click::ACCENT
             } else if time_signature_top.is_subaccent(note_index) {
-                SUBACCENT_CLICK
+                Click::SUBACCENT
             } else {
-                NORMAL_CLICK
+                Click::NORMAL
             }
         }
 
@@ -181,12 +147,6 @@ impl ReaClick {
     }
 }
 
-#[derive(Params)]
-pub struct ReaClickParams {
-    #[persist = "editor-state"]
-    editor_state: Arc<IcedState>,
-}
-
 impl Default for ReaClick {
     fn default() -> Self {
         Self {
@@ -194,14 +154,6 @@ impl Default for ReaClick {
             display_data: DisplayData::new(),
             sample_rate: 0f32,
             phase: 0f32,
-        }
-    }
-}
-
-impl Default for ReaClickParams {
-    fn default() -> Self {
-        Self {
-            editor_state: create_default_state(),
         }
     }
 }

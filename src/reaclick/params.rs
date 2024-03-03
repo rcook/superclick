@@ -19,10 +19,21 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-mod click;
-mod data;
-mod editor;
-mod params;
-mod plugin;
+use super::editor::create_default_editor_state;
+use nih_plug::prelude::*;
+use nih_plug_iced::IcedState;
+use std::sync::Arc;
 
-pub use self::plugin::ReaClick;
+#[derive(Params)]
+pub struct ReaClickParams {
+    #[persist = "editor-state"]
+    pub editor_state: Arc<IcedState>,
+}
+
+impl Default for ReaClickParams {
+    fn default() -> Self {
+        Self {
+            editor_state: create_default_editor_state(),
+        }
+    }
+}

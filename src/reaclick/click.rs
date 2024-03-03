@@ -19,10 +19,37 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-mod click;
-mod data;
-mod editor;
-mod params;
-mod plugin;
+pub enum Channel {
+    Left,
+    Right,
+    Both,
+}
 
-pub use self::plugin::ReaClick;
+pub struct Click {
+    pub channel: Channel,
+    pub frequency: f32,
+    pub length: f64,
+}
+
+impl Click {
+    /// Body Beat Pulse Solo accent (high-intensity) click
+    pub const ACCENT: Click = Click {
+        channel: Channel::Right,
+        frequency: 400f32,
+        length: 0.125f64,
+    };
+
+    /// Body Beat Pulse Solo subaccent (medium-intensity) click
+    pub const SUBACCENT: Click = Click {
+        channel: Channel::Left,
+        frequency: 800f32,
+        length: 0.125f64,
+    };
+
+    /// Body Beat Pulse Solo normal (low-intensity) click
+    pub const NORMAL: Click = Click {
+        channel: Channel::Both,
+        frequency: 1_600f32,
+        length: 0.125f64,
+    };
+}

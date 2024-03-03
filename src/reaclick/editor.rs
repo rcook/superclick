@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use super::data::{DisplayData, DisplayDataRef};
-use super::plugin::ReaClickParams;
+use super::params::ReaClickParams;
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::button;
@@ -31,7 +31,7 @@ use nih_plug_iced::{
 };
 use std::sync::Arc;
 
-pub fn create_default_state() -> Arc<IcedState> {
+pub fn create_default_editor_state() -> Arc<IcedState> {
     IcedState::from_size(400, 300)
 }
 
