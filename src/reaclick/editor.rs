@@ -73,14 +73,8 @@ struct DisplayStrings {
 impl DisplayStrings {
     fn from_display_data(display_data: &DisplayData) -> Self {
         let buffer = format!(
-            "{} / {} / {} / {} / {}",
-            display_data.sample_rate,
-            display_data
-                .min_buffer_size
-                .map_or_else(|| String::from("(unavailable"), |x| format!("{x}")),
-            display_data.max_buffer_size,
-            display_data.samples,
-            display_data.channels,
+            "fs={} spls={} ch={}",
+            display_data.sample_rate, display_data.samples, display_data.channels,
         );
 
         let error = display_data

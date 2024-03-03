@@ -252,8 +252,6 @@ impl Plugin for ReaClick {
         self.sample_rate = buffer_config.sample_rate;
         let mut display_data = self.display_data.lock().expect("lock poisoned");
         display_data.sample_rate = buffer_config.sample_rate;
-        display_data.min_buffer_size = buffer_config.min_buffer_size;
-        display_data.max_buffer_size = buffer_config.max_buffer_size;
         display_data.error = None;
         true
     }
