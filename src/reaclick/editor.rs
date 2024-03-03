@@ -67,6 +67,7 @@ struct DisplayStrings {
     tempo: String,
     song_position: String,
     time_signature: String,
+    error: Option<String>,
 }
 
 impl DisplayStrings {
@@ -82,6 +83,11 @@ impl DisplayStrings {
             display_data.channels,
         );
 
+        let error = display_data
+            .error
+            .as_ref()
+            .map(|e| format!("Error occurred: {:?}", e));
+
         if let Some(ref playhead) = display_data.playhead {
             Self {
                 buffer,
@@ -94,6 +100,7 @@ impl DisplayStrings {
                     "Time signature: {}/{}",
                     playhead.time_signature_top, playhead.time_signature_bottom
                 ),
+                error: error,
             }
         } else {
             Self {
@@ -101,6 +108,7 @@ impl DisplayStrings {
                 tempo: String::from("(Tempo unavailable)"),
                 song_position: String::from("(Song position unavailable)"),
                 time_signature: String::from("(Time signature unavailable)"),
+                error: error,
             }
         }
     }
@@ -142,13 +150,16 @@ impl IcedEditor for ReaClickEditor {
             DisplayStrings::from_display_data(&display_data)
         };
 
-        Column::new()
+        let mut column = Column::new()
             .push(Text::new("ReaClick"))
             .push(Text::new(&strs.buffer))
             .push(Text::new(&strs.tempo))
             .push(Text::new(&strs.song_position))
-            .push(Text::new(&strs.time_signature))
-            .into()
+            .push(Text::new(&strs.time_signature));
+        if let Some(e) = strs.error {
+            column = column.push(Text::new(e));
+        }
+        column.into()
     }
 
     fn background_color(&self) -> Color {

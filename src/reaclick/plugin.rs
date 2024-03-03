@@ -66,7 +66,7 @@ const NORMAL_CLICK: Click = Click {
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
-    info: DisplayDataRef,
+    display_data: DisplayDataRef,
     sample_rate: f32,
     phase: f32,
 }
@@ -76,21 +76,32 @@ impl ReaClick {
         &mut self,
         buffer: &mut Buffer,
         context: &mut impl ProcessContext<Self>,
-    ) -> Result<()> {
+    ) -> Result<Option<Playhead>> {
         let playhead = self.get_playhead(context.transport())?;
 
         if let Some(ref playhead) = playhead {
             self.write_samples(playhead, buffer);
         }
 
-        if self.params.editor_state.is_open() {
-            let mut info = self.info.lock().expect("lock poisoned");
-            info.samples = buffer.samples();
-            info.channels = buffer.channels();
-            info.playhead = playhead;
-        }
+        Ok(playhead)
+    }
 
-        Ok(())
+    fn update_display(&self, buffer: &Buffer, result: Result<Option<Playhead>>) {
+        if self.params.editor_state.is_open() {
+            let mut display_data = self.display_data.lock().expect("lock poisoned");
+            display_data.samples = buffer.samples();
+            display_data.channels = buffer.channels();
+            match result {
+                Ok(playhead) => {
+                    display_data.playhead = playhead;
+                    display_data.error = None
+                }
+                Err(e) => {
+                    display_data.playhead = None;
+                    display_data.error = Some(e)
+                }
+            }
+        }
     }
 
     fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
@@ -184,7 +195,7 @@ impl Default for ReaClick {
     fn default() -> Self {
         Self {
             params: Arc::new(ReaClickParams::default()),
-            info: DisplayData::new(),
+            display_data: DisplayData::new(),
             sample_rate: 0f32,
             phase: 0f32,
         }
@@ -231,7 +242,7 @@ impl Plugin for ReaClick {
     fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
         create_editor(
             self.params.clone(),
-            self.info.clone(),
+            self.display_data.clone(),
             self.params.editor_state.clone(),
         )
     }
@@ -243,10 +254,11 @@ impl Plugin for ReaClick {
         _context: &mut impl InitContext<Self>,
     ) -> bool {
         self.sample_rate = buffer_config.sample_rate;
-        let mut info = self.info.lock().expect("lock poisoned");
-        info.sample_rate = buffer_config.sample_rate;
-        info.min_buffer_size = buffer_config.min_buffer_size;
-        info.max_buffer_size = buffer_config.max_buffer_size;
+        let mut display_data = self.display_data.lock().expect("lock poisoned");
+        display_data.sample_rate = buffer_config.sample_rate;
+        display_data.min_buffer_size = buffer_config.min_buffer_size;
+        display_data.max_buffer_size = buffer_config.max_buffer_size;
+        display_data.error = None;
         true
     }
 
@@ -256,17 +268,9 @@ impl Plugin for ReaClick {
         _aux: &mut AuxiliaryBuffers,
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
-        nih_log!("process");
-        match self.process_inner(buffer, context) {
-            Ok(()) => {
-                nih_log!("good");
-                ProcessStatus::Normal
-            }
-            Err(_) => {
-                nih_log!("error");
-                ProcessStatus::Error("error")
-            }
-        }
+        let result = self.process_inner(buffer, context);
+        self.update_display(buffer, result);
+        ProcessStatus::Normal
     }
 }
 

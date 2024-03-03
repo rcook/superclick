@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use crate::error::Error;
 use crate::music_theory::{TimeSignatureBottom, TimeSignatureTop};
 use std::sync::{Arc, Mutex};
 
@@ -41,6 +42,7 @@ pub struct DisplayData {
     pub samples: usize,
     pub channels: usize,
     pub playhead: Option<Playhead>,
+    pub error: Option<Error>,
 }
 
 impl DisplayData {
