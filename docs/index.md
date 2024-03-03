@@ -9,6 +9,10 @@ _Note that this plugin has only been tested thoroughly(ish) on Windows running
  under REAPER. I am keen to see how it fares on other platforms and in other
  hosts._
 
+Making a strong case for being the world's ugliest plugin&hellip;
+
+![ReaClick UI](reaclick-in-reaper-windows.png "ReaClick UI")
+
 ## Download release
 
 [Download release from GitHub][releases]
