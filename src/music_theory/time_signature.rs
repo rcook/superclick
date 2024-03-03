@@ -32,11 +32,24 @@ impl TimeSignatureTop {
         self.0
     }
 
+    // Badly named method
+    // Should probably not go in this struct either
     pub fn beat(&self) -> f64 {
         match self.0 {
             3 => 1f64,
             4 => 1f64,
             6 => 0.5f64,
+            _ => unreachable!(),
+        }
+    }
+
+    // Badly named method
+    // Should probably not go in this struct either
+    pub fn basis(&self) -> f64 {
+        match self.0 {
+            3 => 1f64,
+            4 => 1f64,
+            6 => 1.5f64,
             _ => unreachable!(),
         }
     }

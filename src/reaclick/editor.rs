@@ -92,7 +92,11 @@ impl DisplayStrings {
         if let Some(ref playhead) = display_data.playhead {
             Self {
                 buffer,
-                tempo: format!("Tempo: {} qpm", playhead.tempo),
+                tempo: format!(
+                    "Tempo: {:.1} qpm / {:.1} bpm",
+                    playhead.tempo,
+                    playhead.tempo / playhead.time_signature_top.basis()
+                ),
                 song_position: format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
