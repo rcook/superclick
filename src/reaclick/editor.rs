@@ -23,17 +23,16 @@ use super::data::{DisplayData, DisplayDataRef};
 use super::plugin::ReaClickParams;
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
-use nih_plug_iced::button::State;
+use nih_plug_iced::button;
 use nih_plug_iced::executor::Default;
 use nih_plug_iced::{
     create_iced_editor, Button, Color, Column, Command, Element, IcedEditor, IcedState, Text,
     WindowQueue,
 };
 use std::sync::Arc;
-use webbrowser;
 
 pub fn create_default_state() -> Arc<IcedState> {
-    IcedState::from_size(200, 150)
+    IcedState::from_size(400, 300)
 }
 
 pub fn create_editor(
@@ -61,7 +60,7 @@ struct ReaClickEditor {
     params: Arc<ReaClickParams>,
     context: Arc<dyn GuiContext>,
     display_data: DisplayDataRef,
-    error_button_state: State,
+    report_bug_button_state: button::State,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,7 +86,7 @@ impl DisplayStrings {
         let error = display_data
             .error
             .as_ref()
-            .map(|e| format!("Error occurred: {:?}", e));
+            .map(|e| format!("An error occurred: {:?}", e));
 
         if let Some(ref playhead) = display_data.playhead {
             Self {
@@ -128,7 +127,7 @@ impl IcedEditor for ReaClickEditor {
             params: initialization_flags.params,
             context,
             display_data: initialization_flags.display_data,
-            error_button_state: State::default(),
+            report_bug_button_state: button::State::default(),
         };
 
         (editor, Command::none())
@@ -159,18 +158,21 @@ impl IcedEditor for ReaClickEditor {
             DisplayStrings::from_display_data(&display_data)
         };
 
-        let mut column = Column::new()
-            .push(Text::new("ReaClick").size(40))
-            .push(Text::new(&strs.buffer))
-            .push(Text::new(&strs.tempo))
-            .push(Text::new(&strs.song_position))
-            .push(Text::new(&strs.time_signature));
+        let mut column = Column::new();
+
         if let Some(e) = strs.error {
             column = column.push(Text::new(e)).push(
-                Button::new(&mut self.error_button_state, Text::new("Report bug"))
+                Button::new(&mut self.report_bug_button_state, Text::new("Report bug"))
                     .on_press(Self::Message::ReportBugButtonPressed),
-            )
+            );
         }
+
+        column = column
+            .push(Text::new(&strs.tempo))
+            .push(Text::new(&strs.song_position))
+            .push(Text::new(&strs.time_signature))
+            .push(Text::new(&strs.buffer));
+
         column.into()
     }
 
