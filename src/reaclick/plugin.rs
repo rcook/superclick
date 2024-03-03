@@ -23,7 +23,7 @@ use super::data::{DisplayData, DisplayDataRef, Playhead};
 use super::editor::{create_default_state, create_editor};
 use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
-use crate::result::Result;
+use crate::result::{GetOrError, Result};
 use nih_plug::prelude::*;
 use nih_plug_iced::IcedState;
 use std::f32::consts;
@@ -95,25 +95,22 @@ impl ReaClick {
 
     fn get_playhead(&self, transport: &Transport) -> Result<Option<Playhead>> {
         Ok(if transport.playing {
-            let Some(tempo) = transport.tempo else {
-                return Err(Error::TempoUnavailable);
-            };
-            let Some(bar_number) = transport.bar_number() else {
-                return Err(Error::BarNumberUnavailable);
-            };
-            let Some(bar_start_pos_crotchets) = transport.bar_start_pos_beats() else {
-                return Err(Error::BarStartPosBeatsUnavailable);
-            };
-            let Some(pos_crotchets) = transport.pos_beats() else {
-                return Err(Error::PosBeatsUnavailable);
-            };
-            let Some(time_sig_numerator) = transport.time_sig_numerator else {
-                return Err(Error::TimeSigNumeratorUnavailable);
-            };
-            let Some(time_sig_denominator) = transport.time_sig_denominator else {
-                return Err(Error::TimeSignDenominatorUnavailable);
-            };
-
+            let tempo = transport.tempo.get_or_error(Error::TempoUnavailable)?;
+            let bar_number = transport
+                .bar_number()
+                .get_or_error(Error::BarNumberUnavailable)?;
+            let bar_start_pos_crotchets = transport
+                .bar_start_pos_beats()
+                .get_or_error(Error::BarStartPosBeatsUnavailable)?;
+            let pos_crotchets = transport
+                .pos_beats()
+                .get_or_error(Error::PosBeatsUnavailable)?;
+            let time_sig_numerator = transport
+                .time_sig_numerator
+                .get_or_error(Error::TimeSigNumeratorUnavailable)?;
+            let time_sig_denominator = transport
+                .time_sig_denominator
+                .get_or_error(Error::TimeSignDenominatorUnavailable)?;
             Some(Playhead {
                 tempo,
                 bar_number,
