@@ -19,13 +19,15 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-mod error;
-mod music_theory;
-mod package;
-mod reaclick;
-mod result;
+#[allow(dead_code)]
+pub const PACKAGE_NAME: &str = env!("CARGO_PKG_NAME");
 
-use nih_plug::nih_export_clap;
-use reaclick::ReaClick;
+#[allow(dead_code)]
+pub const PACKAGE_DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
 
-nih_export_clap!(ReaClick);
+pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+pub const PACKAGE_HOME_PAGE: &str = env!("CARGO_PKG_HOMEPAGE");
+
+#[allow(dead_code)]
+pub const PACKAGE_BUILD_VERSION: Option<&str> = option_env!("RUST_TOOL_ACTION_BUILD_VERSION");

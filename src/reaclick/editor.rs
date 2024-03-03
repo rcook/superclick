@@ -21,6 +21,7 @@
 //
 use super::display_data::{DisplayData, DisplayDataRef};
 use super::params::ReaClickParams;
+use crate::package::PACKAGE_HOME_PAGE;
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
 use nih_plug_iced::button;
@@ -147,7 +148,7 @@ impl IcedEditor for ReaClickEditor {
     ) -> Command<Self::Message> {
         match message {
             Self::Message::ReportBugButtonPressed => {
-                if let Err(e) = webbrowser::open(env!("CARGO_PKG_HOMEPAGE")) {
+                if let Err(e) = webbrowser::open(PACKAGE_HOME_PAGE) {
                     nih_error!("{}", e);
                 }
             }
