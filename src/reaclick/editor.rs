@@ -95,7 +95,8 @@ impl DisplayStrings {
                 tempo: format!(
                     "Tempo: {:.1} qpm / {:.1} bpm",
                     playhead.tempo,
-                    playhead.tempo / playhead.time_signature_top.basis()
+                    playhead.tempo * playhead.time_signature_bottom.as_number() as f64
+                        / (4 * playhead.time_signature_top.basis()) as f64
                 ),
                 song_position: format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
@@ -108,8 +109,9 @@ impl DisplayStrings {
                 big: Some(format!(
                     "{}/{}",
                     ((playhead.pos_crotchets - playhead.bar_start_pos_crotchets)
-                        / playhead.time_signature_top.beat())
-                    .trunc() as i32
+                        * playhead.time_signature_bottom.as_number() as f64
+                        / 4f64)
+                        .trunc() as i32
                         + 1,
                     playhead.time_signature_bottom.as_number()
                 )),

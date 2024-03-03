@@ -110,10 +110,10 @@ impl ReaClick {
     }
 
     fn write_samples(&mut self, playhead: &Playhead, buffer: &mut Buffer) {
-        fn get_click(time_signature_top: TimeSignatureTop, note_index: i32) -> Click {
-            if note_index == 0 {
+        fn get_click(time_signature_top: TimeSignatureTop, index: i32) -> Click {
+            if index == 0 {
                 Click::ACCENT
-            } else if time_signature_top.is_subaccent(note_index) {
+            } else if time_signature_top.is_accented(index) {
                 Click::SUBACCENT
             } else {
                 Click::NORMAL
@@ -121,10 +121,9 @@ impl ReaClick {
         }
 
         let x = playhead.pos_crotchets - playhead.bar_start_pos_crotchets;
-        let beat = playhead.time_signature_top.beat();
         for i in 0..playhead.time_signature_top.as_number() {
             let click = get_click(playhead.time_signature_top, i);
-            let temp = (i as f64) * beat;
+            let temp = i as f64 * 4f64 / playhead.time_signature_bottom.as_number() as f64;
             if x >= temp && x <= temp + click.length {
                 for channel_samples in buffer.iter_samples() {
                     let value = self.calculate_sine(click.frequency);

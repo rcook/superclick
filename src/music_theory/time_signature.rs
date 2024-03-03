@@ -32,34 +32,24 @@ impl TimeSignatureTop {
         self.0
     }
 
-    // Badly named method
-    // Should probably not go in this struct either
-    pub fn beat(&self) -> f64 {
+    pub fn basis(&self) -> i32 {
         match self.0 {
-            3 => 1f64,
-            4 => 1f64,
-            6 => 0.5f64,
-            _ => unreachable!(),
+            6 | 9 | 12 => 3,
+            _ => 1,
         }
     }
 
-    // Badly named method
-    // Should probably not go in this struct either
-    pub fn basis(&self) -> f64 {
-        match self.0 {
-            3 => 1f64,
-            4 => 1f64,
-            6 => 1.5f64,
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn is_subaccent(&self, note_index: i32) -> bool {
-        match self.0 {
-            3 => false,
-            4 => note_index == 1 || note_index == 3,
-            6 => note_index == 3,
-            _ => unreachable!(),
+    pub fn is_accented(&self, index: i32) -> bool {
+        if index == 0 {
+            true
+        } else {
+            match self.0 {
+                4 => index == 2,
+                6 => index == 3,
+                9 => index == 3 || index == 6,
+                12 => index == 3 || index == 6 || index == 9,
+                _ => false,
+            }
         }
     }
 }
@@ -68,9 +58,10 @@ impl TryFrom<i32> for TimeSignatureTop {
     type Error = Error;
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
-        match value {
-            3 | 4 | 6 => Ok(Self(value)),
-            _ => Err(Error::InvalidTimeSignatureTop),
+        if value >= 1 {
+            Ok(Self(value))
+        } else {
+            Err(Error::InvalidTimeSignatureTop)
         }
     }
 }
@@ -86,7 +77,6 @@ impl Display for TimeSignatureTop {
 pub struct TimeSignatureBottom(i32);
 
 impl TimeSignatureBottom {
-    #[allow(dead_code)]
     pub fn as_number(&self) -> i32 {
         self.0
     }
