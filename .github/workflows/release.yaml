@@ -1,0 +1,55 @@
+name: Release
+
+env:
+  tool_name: reaclick
+  build_type: release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        target:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+          - x86_64-pc-windows-msvc
+          - x86_64-unknown-linux-musl
+        include:
+          - target: aarch64-apple-darwin
+            executable_ext:
+            archive_type: .tar.gz
+            build_os: macos-latest
+          - target: x86_64-apple-darwin
+            executable_ext:
+            archive_type: .tar.gz
+            build_os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            executable_ext: .exe
+            archive_type: .zip
+            build_os: windows-latest
+          - target: x86_64-unknown-linux-musl
+            executable_ext:
+            archive_type: .tar.gz
+            build_os: ubuntu-latest
+    runs-on: ${{ matrix.build_os }}
+    steps:
+      - name: Build, test and release Rust tool
+        uses: rcook/rust-tool-action@v0.0.26
+        with:
+          tool_name: ${{ env.tool_name }}
+          target: ${{ matrix.target }}
+          executable_ext: ${{ matrix.executable_ext }}
+          archive_type: ${{ matrix.archive_type }}
+          build_type: ${{ env.build_type }}
+          code_sign: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST_TOOL_ACTION_CODE_SIGN_CRT: ${{ secrets.RCOOK_CRT }}
+          RUST_TOOL_ACTION_CODE_SIGN_CRTPASS: ${{ secrets.RCOOK_CRTPASS }}
