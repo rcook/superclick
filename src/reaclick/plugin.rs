@@ -30,6 +30,9 @@ use nih_plug::prelude::*;
 use std::f32::consts;
 use std::sync::Arc;
 
+const LEFT_CHANNEL_ID: usize = 0;
+const RIGHT_CHANNEL_ID: usize = 1;
+
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
     display_data: DisplayDataRef,
@@ -131,9 +134,11 @@ impl ReaClick {
                     // There's probably a more efficient way to do this...
                     for (channel_id, sample) in channel_samples.into_iter().enumerate() {
                         let is_audible = match click.channel {
-                            Channel::Left => channel_id == 0,
-                            Channel::Right => channel_id == 1,
-                            Channel::Both => channel_id == 0 || channel_id == 1,
+                            Channel::Left => channel_id == LEFT_CHANNEL_ID,
+                            Channel::Right => channel_id == RIGHT_CHANNEL_ID,
+                            Channel::Both => {
+                                channel_id == LEFT_CHANNEL_ID || channel_id == RIGHT_CHANNEL_ID
+                            }
                         };
                         if is_audible {
                             *sample = value;
