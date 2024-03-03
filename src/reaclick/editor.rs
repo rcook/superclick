@@ -21,12 +21,16 @@
 //
 use super::data::{DisplayData, DisplayDataRef};
 use super::plugin::ReaClickParams;
+use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
+use nih_plug_iced::button::State;
 use nih_plug_iced::executor::Default;
 use nih_plug_iced::{
-    create_iced_editor, Color, Column, Command, Element, IcedEditor, IcedState, Text, WindowQueue,
+    create_iced_editor, Button, Color, Column, Command, Element, IcedEditor, IcedState, Text,
+    WindowQueue,
 };
 use std::sync::Arc;
+use webbrowser;
 
 pub fn create_default_state() -> Arc<IcedState> {
     IcedState::from_size(200, 150)
@@ -57,10 +61,13 @@ struct ReaClickEditor {
     params: Arc<ReaClickParams>,
     context: Arc<dyn GuiContext>,
     display_data: DisplayDataRef,
+    error_button_state: State,
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Message {}
+enum Message {
+    ReportBugButtonPressed,
+}
 
 struct DisplayStrings {
     buffer: String,
@@ -121,6 +128,7 @@ impl IcedEditor for ReaClickEditor {
             params: initialization_flags.params,
             context,
             display_data: initialization_flags.display_data,
+            error_button_state: State::default(),
         };
 
         (editor, Command::none())
@@ -133,8 +141,15 @@ impl IcedEditor for ReaClickEditor {
     fn update(
         &mut self,
         _window: &mut WindowQueue,
-        _message: Self::Message,
+        message: Self::Message,
     ) -> Command<Self::Message> {
+        match message {
+            Self::Message::ReportBugButtonPressed => {
+                if let Err(e) = webbrowser::open(env!("CARGO_PKG_HOMEPAGE")) {
+                    nih_error!("{}", e);
+                }
+            }
+        }
         Command::none()
     }
 
@@ -151,7 +166,10 @@ impl IcedEditor for ReaClickEditor {
             .push(Text::new(&strs.song_position))
             .push(Text::new(&strs.time_signature));
         if let Some(e) = strs.error {
-            column = column.push(Text::new(e));
+            column = column.push(Text::new(e)).push(
+                Button::new(&mut self.error_button_state, Text::new("Report bug"))
+                    .on_press(Self::Message::ReportBugButtonPressed),
+            )
         }
         column.into()
     }

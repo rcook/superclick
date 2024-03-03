@@ -2,7 +2,7 @@
 authors = ["Richard Cook <rcook@rcook.org>"]
 description = "ReaClick - CLAP click track generator plugin"
 edition = "2021"
-homepage = "https://github.com/rcook/reaclikc"
+homepage = "https://github.com/rcook/reaclick"
 license = "MIT"
 name = "reaclick"
 version = "0.1.0"
@@ -16,6 +16,7 @@ crate-type = ["cdylib"]
 [dependencies]
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
 nih_plug_iced = { git = "https://github.com/robbert-vdh/nih-plug.git" }
+webbrowser = "0.8.12"
 
 [profile.release]
 lto = "thin"
