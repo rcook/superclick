@@ -1,10 +1,14 @@
 [package]
 authors = ["Richard Cook <rcook@rcook.org>"]
+categories = ["multimedia::audio"]
 description = "ReaClick - CLAP click track generator plugin"
 edition = "2021"
 homepage = "https://github.com/rcook/reaclick"
+keywords = ["audio", "music"]
 license = "MIT"
 name = "reaclick"
+readme = "README.md"
+repository = "https://github.com/rcook/reaclick.git"
 version = "0.0.0"
 
 [workspace]
