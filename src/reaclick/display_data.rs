@@ -36,9 +36,6 @@ pub struct Playhead {
 
 #[derive(Default)]
 pub struct DisplayData {
-    pub sample_rate: f32,
-    pub samples: usize,
-    pub channels: usize,
     pub playhead: Option<Playhead>,
     pub error: Option<Error>,
 }

@@ -55,11 +55,9 @@ impl ReaClick {
         Ok(playhead)
     }
 
-    fn update_display(&self, buffer: &Buffer, result: Result<Option<Playhead>>) {
+    fn update_display(&self, result: Result<Option<Playhead>>) {
         if self.params.editor_state.is_open() {
             let mut display_data = self.display_data.lock().expect("lock poisoned");
-            display_data.samples = buffer.samples();
-            display_data.channels = buffer.channels();
             match result {
                 Ok(playhead) => {
                     display_data.playhead = playhead;
@@ -207,7 +205,6 @@ impl Plugin for ReaClick {
     ) -> bool {
         self.sample_rate = buffer_config.sample_rate;
         let mut display_data = self.display_data.lock().expect("lock poisoned");
-        display_data.sample_rate = buffer_config.sample_rate;
         display_data.error = None;
         true
     }
@@ -219,7 +216,7 @@ impl Plugin for ReaClick {
         context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
         let result = self.process_inner(buffer, context);
-        self.update_display(buffer, result);
+        self.update_display(result);
         ProcessStatus::Normal
     }
 }

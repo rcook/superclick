@@ -69,21 +69,14 @@ enum Message {
 }
 
 struct DisplayStrings {
-    buffer: String,
     tempo: String,
     song_position: String,
-    time_signature: String,
     big: Option<String>,
     error: Option<String>,
 }
 
 impl DisplayStrings {
     fn from_display_data(display_data: &DisplayData) -> Self {
-        let buffer = format!(
-            "fs={} spls={} ch={}",
-            display_data.sample_rate, display_data.samples, display_data.channels,
-        );
-
         let error = display_data
             .error
             .as_ref()
@@ -91,7 +84,6 @@ impl DisplayStrings {
 
         if let Some(ref playhead) = display_data.playhead {
             Self {
-                buffer,
                 tempo: format!(
                     "Tempo: {:.1} qpm / {:.1} bpm",
                     playhead.tempo,
@@ -102,27 +94,22 @@ impl DisplayStrings {
                     "Song position: {:04}/{:05.2}/{:05.2}",
                     playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
                 ),
-                time_signature: format!(
-                    "Time signature: {}/{}",
-                    playhead.time_signature_top, playhead.time_signature_bottom
-                ),
                 big: Some(format!(
-                    "{}/{}",
+                    "{} of {}/{}",
                     ((playhead.pos_crotchets - playhead.bar_start_pos_crotchets)
                         * playhead.time_signature_bottom.as_number() as f64
                         / 4f64)
                         .trunc() as i32
                         + 1,
-                    playhead.time_signature_bottom.as_number()
+                    playhead.time_signature_top,
+                    playhead.time_signature_bottom,
                 )),
                 error,
             }
         } else {
             Self {
-                buffer,
                 tempo: String::from("(Tempo unavailable)"),
                 song_position: String::from("(Song position unavailable)"),
-                time_signature: String::from("(Time signature unavailable)"),
                 big: None,
                 error,
             }
@@ -185,12 +172,10 @@ impl IcedEditor for ReaClickEditor {
 
         column = column
             .push(Text::new(&strs.tempo))
-            .push(Text::new(&strs.song_position))
-            .push(Text::new(&strs.time_signature))
-            .push(Text::new(&strs.buffer));
+            .push(Text::new(&strs.song_position));
 
         if let Some(s) = strs.big {
-            column = column.push(Text::new(s).size(100));
+            column = column.push(Text::new(s).size(150));
         }
 
         column.into()
