@@ -54,6 +54,12 @@ impl TimeSignatureTop {
     }
 }
 
+impl Default for TimeSignatureTop {
+    fn default() -> Self {
+        Self(4)
+    }
+}
+
 impl TryFrom<i32> for TimeSignatureTop {
     type Error = Error;
 
@@ -96,5 +102,11 @@ impl TryFrom<i32> for TimeSignatureBottom {
 impl Display for TimeSignatureBottom {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
+    }
+}
+
+impl Default for TimeSignatureBottom {
+    fn default() -> Self {
+        Self(4)
     }
 }

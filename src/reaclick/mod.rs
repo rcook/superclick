@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 mod click;
-mod display_data;
+mod display;
 mod editor;
 mod params;
 mod plugin;

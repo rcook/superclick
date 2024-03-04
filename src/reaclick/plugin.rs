@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use super::click::{Channel, Click};
-use super::display_data::{DisplayData, DisplayDataRef, Playhead};
+use super::display::{Display, Playhead};
 use super::editor::create_editor;
 use super::params::ReaClickParams;
 use crate::error::Error;
@@ -36,7 +36,7 @@ const RIGHT_CHANNEL_ID: usize = 1;
 
 pub struct ReaClick {
     params: Arc<ReaClickParams>,
-    display_data: DisplayDataRef,
+    display: Arc<Display>,
     sample_rate: f32,
     phase: f32,
 }
@@ -58,16 +58,9 @@ impl ReaClick {
 
     fn update_display(&self, result: Result<Option<Playhead>>) {
         if self.params.editor_state.is_open() {
-            let mut display_data = self.display_data.lock().expect("lock poisoned");
             match result {
-                Ok(playhead) => {
-                    display_data.playhead = playhead;
-                    display_data.error = None
-                }
-                Err(e) => {
-                    display_data.playhead = None;
-                    display_data.error = Some(e)
-                }
+                Ok(playhead) => self.display.update(None, &playhead),
+                Err(e) => self.display.update(Some(e), &None),
             }
         }
     }
@@ -154,7 +147,7 @@ impl Default for ReaClick {
     fn default() -> Self {
         Self {
             params: Arc::new(ReaClickParams::default()),
-            display_data: DisplayData::new(),
+            display: Arc::new(Display::default()),
             sample_rate: 0f32,
             phase: 0f32,
         }
@@ -193,7 +186,7 @@ impl Plugin for ReaClick {
     fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
         create_editor(
             self.params.clone(),
-            self.display_data.clone(),
+            self.display.clone(),
             self.params.editor_state.clone(),
         )
     }
@@ -205,8 +198,7 @@ impl Plugin for ReaClick {
         _context: &mut impl InitContext<Self>,
     ) -> bool {
         self.sample_rate = buffer_config.sample_rate;
-        let mut display_data = self.display_data.lock().expect("lock poisoned");
-        display_data.error = None;
+        self.display.update(None, &None);
         true
     }
 

@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::display_data::{DisplayData, DisplayDataRef};
+use super::display::Display;
 use super::params::ReaClickParams;
 use crate::package::{PACKAGE_BUILD_VERSION, PACKAGE_HOME_PAGE, PACKAGE_NAME, PACKAGE_VERSION};
 use nih_plug::nih_error;
@@ -38,29 +38,26 @@ pub fn create_default_editor_state() -> Arc<IcedState> {
 
 pub fn create_editor(
     params: Arc<ReaClickParams>,
-    display_data: DisplayDataRef,
+    display: Arc<Display>,
     editor_state: Arc<IcedState>,
 ) -> Option<Box<dyn Editor>> {
     create_iced_editor::<ReaClickEditor>(
         editor_state,
-        ReaClickEditorInitializationFlags {
-            params,
-            display_data,
-        },
+        ReaClickEditorInitializationFlags { params, display },
     )
 }
 
 #[derive(Clone)]
 struct ReaClickEditorInitializationFlags {
     params: Arc<ReaClickParams>,
-    display_data: DisplayDataRef,
+    display: Arc<Display>,
 }
 
 struct ReaClickEditor {
     #[allow(unused)]
     params: Arc<ReaClickParams>,
     context: Arc<dyn GuiContext>,
-    display_data: DisplayDataRef,
+    display: Arc<Display>,
     report_bug_button_state: button::State,
 }
 
@@ -78,7 +75,7 @@ struct DisplayStrings {
 }
 
 impl DisplayStrings {
-    fn from_display_data(display_data: &DisplayData) -> Self {
+    fn new(display: &Display) -> Self {
         let title = match PACKAGE_BUILD_VERSION {
             Some(ref build_version) => {
                 format!("{} v{} ({})", PACKAGE_NAME, PACKAGE_VERSION, build_version)
@@ -86,44 +83,51 @@ impl DisplayStrings {
             None => format!("{} v{}", PACKAGE_NAME, PACKAGE_VERSION),
         };
 
-        let error = display_data
-            .error
-            .as_ref()
-            .map(|e| format!("An error occurred: {:?}", e));
+        let error_code = display.error_code();
+        let error = if error_code == isize::default() {
+            None
+        } else {
+            Some(format!("Error: {}", error_code))
+        };
 
-        if let Some(ref playhead) = display_data.playhead {
-            Self {
+        match (
+            display.is_playing(),
+            display.time_signature_top(),
+            display.time_signature_bottom(),
+        ) {
+            (true, Some(time_signature_top), Some(time_signature_bottom)) => Self {
                 title,
                 song_position: format!(
                     "Song position: {:04}/{:05.2}/{:05.2}",
-                    playhead.bar_number, playhead.bar_start_pos_crotchets, playhead.pos_crotchets,
+                    display.bar_number(),
+                    display.bar_start_pos_crotchets(),
+                    display.pos_crotchets(),
                 ),
                 tempo: Some(format!(
                     "Tempo: {:.1} qpm / {:.1} bpm",
-                    playhead.tempo,
-                    playhead.tempo * playhead.time_signature_bottom.as_number() as f64
-                        / (4 * playhead.time_signature_top.basis()) as f64
+                    display.tempo(),
+                    display.tempo() * time_signature_bottom.as_number() as f64
+                        / (4 * time_signature_top.basis()) as f64
                 )),
                 big: Some(format!(
                     "{} of {}/{}",
-                    ((playhead.pos_crotchets - playhead.bar_start_pos_crotchets)
-                        * playhead.time_signature_bottom.as_number() as f64
+                    ((display.pos_crotchets() - display.bar_start_pos_crotchets())
+                        * time_signature_bottom.as_number() as f64
                         / 4f64)
                         .trunc() as i32
                         + 1,
-                    playhead.time_signature_top,
-                    playhead.time_signature_bottom,
+                    time_signature_top,
+                    time_signature_bottom,
                 )),
                 error,
-            }
-        } else {
-            Self {
+            },
+            _ => Self {
                 title,
                 song_position: String::from("(Idle)"),
                 tempo: None,
                 big: None,
                 error,
-            }
+            },
         }
     }
 }
@@ -140,7 +144,7 @@ impl IcedEditor for ReaClickEditor {
         let editor = ReaClickEditor {
             params: initialization_flags.params,
             context,
-            display_data: initialization_flags.display_data,
+            display: initialization_flags.display,
             report_bug_button_state: button::State::default(),
         };
 
@@ -167,10 +171,7 @@ impl IcedEditor for ReaClickEditor {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let strs = {
-            let display_data = self.display_data.lock().expect("TBD");
-            DisplayStrings::from_display_data(&display_data)
-        };
+        let strs = DisplayStrings::new(&self.display);
 
         let mut column = Column::new().push(Text::new(strs.title));
 
