@@ -61,6 +61,79 @@ struct ReaClickEditor {
     report_bug_button_state: button::State,
 }
 
+impl IcedEditor for ReaClickEditor {
+    type Executor = Default;
+    type Message = Message;
+    type InitializationFlags = ReaClickEditorInitializationFlags;
+
+    fn new(
+        initialization_flags: Self::InitializationFlags,
+        context: Arc<dyn GuiContext>,
+    ) -> (Self, Command<Self::Message>) {
+        let editor = ReaClickEditor {
+            params: initialization_flags.params,
+            context,
+            display: initialization_flags.display,
+            report_bug_button_state: button::State::default(),
+        };
+
+        (editor, Command::none())
+    }
+
+    fn context(&self) -> &dyn GuiContext {
+        self.context.as_ref()
+    }
+
+    fn update(
+        &mut self,
+        _window: &mut WindowQueue,
+        message: Self::Message,
+    ) -> Command<Self::Message> {
+        match message {
+            Self::Message::ReportBugButtonPressed => {
+                if let Err(e) = webbrowser::open(PACKAGE_HOME_PAGE) {
+                    nih_error!("{}", e);
+                }
+            }
+        }
+        Command::none()
+    }
+
+    fn view(&mut self) -> Element<'_, Self::Message> {
+        let strs = DisplayStrings::new(&self.params.editor_state, &self.display);
+
+        let mut column = Column::new().push(Text::new(strs.title));
+
+        if let Some(ref s) = strs.error {
+            column = column.push(Text::new(s)).push(
+                Button::new(&mut self.report_bug_button_state, Text::new("Report bug"))
+                    .on_press(Self::Message::ReportBugButtonPressed),
+            );
+        }
+
+        column = column.push(Text::new(&strs.song_position));
+
+        if let Some(ref s) = strs.tempo {
+            column = column.push(Text::new(s))
+        }
+
+        if let Some(ref s) = strs.big {
+            column = column.push(Text::new(s).size(150));
+        }
+
+        column.into()
+    }
+
+    fn background_color(&self) -> Color {
+        Color {
+            r: 0.58,
+            g: 0.98,
+            b: 0.58,
+            a: 1.0,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 enum Message {
     ReportBugButtonPressed,
@@ -75,13 +148,8 @@ struct DisplayStrings {
 }
 
 impl DisplayStrings {
-    fn new(display: &Display) -> Self {
-        let title = match PACKAGE_BUILD_VERSION {
-            Some(ref build_version) => {
-                format!("{} v{} ({})", PACKAGE_NAME, PACKAGE_VERSION, build_version)
-            }
-            None => format!("{} v{}", PACKAGE_NAME, PACKAGE_VERSION),
-        };
+    fn new(editor_state: &IcedState, display: &Display) -> Self {
+        let title = Self::format_title(editor_state);
 
         let error_code = display.error_code();
         let error = if error_code == isize::default() {
@@ -130,77 +198,35 @@ impl DisplayStrings {
             },
         }
     }
-}
 
-impl IcedEditor for ReaClickEditor {
-    type Executor = Default;
-    type Message = Message;
-    type InitializationFlags = ReaClickEditorInitializationFlags;
-
-    fn new(
-        initialization_flags: Self::InitializationFlags,
-        context: Arc<dyn GuiContext>,
-    ) -> (Self, Command<Self::Message>) {
-        let editor = ReaClickEditor {
-            params: initialization_flags.params,
-            context,
-            display: initialization_flags.display,
-            report_bug_button_state: button::State::default(),
-        };
-
-        (editor, Command::none())
-    }
-
-    fn context(&self) -> &dyn GuiContext {
-        self.context.as_ref()
-    }
-
-    fn update(
-        &mut self,
-        _window: &mut WindowQueue,
-        message: Self::Message,
-    ) -> Command<Self::Message> {
-        match message {
-            Self::Message::ReportBugButtonPressed => {
-                if let Err(e) = webbrowser::open(PACKAGE_HOME_PAGE) {
-                    nih_error!("{}", e);
-                }
+    #[cfg(debug_assertions)]
+    fn format_title(editor_state: &IcedState) -> String {
+        match PACKAGE_BUILD_VERSION {
+            Some(ref build_version) => {
+                format!(
+                    "{} v{} ({}) [{:?}]",
+                    PACKAGE_NAME,
+                    PACKAGE_VERSION,
+                    build_version,
+                    editor_state.size()
+                )
             }
+            None => format!(
+                "{} v{} [{:?}]",
+                PACKAGE_NAME,
+                PACKAGE_VERSION,
+                editor_state.size()
+            ),
         }
-        Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
-        let strs = DisplayStrings::new(&self.display);
-
-        let mut column = Column::new().push(Text::new(strs.title));
-
-        if let Some(ref s) = strs.error {
-            column = column.push(Text::new(s)).push(
-                Button::new(&mut self.report_bug_button_state, Text::new("Report bug"))
-                    .on_press(Self::Message::ReportBugButtonPressed),
-            );
-        }
-
-        column = column.push(Text::new(&strs.song_position));
-
-        if let Some(ref s) = strs.tempo {
-            column = column.push(Text::new(s))
-        }
-
-        if let Some(ref s) = strs.big {
-            column = column.push(Text::new(s).size(150));
-        }
-
-        column.into()
-    }
-
-    fn background_color(&self) -> Color {
-        Color {
-            r: 0.58,
-            g: 0.98,
-            b: 0.58,
-            a: 1.0,
+    #[cfg(not(debug_assertions))]
+    fn format_title(_editor_state: &IcedState) -> String {
+        match PACKAGE_BUILD_VERSION {
+            Some(ref build_version) => {
+                format!("{} v{} ({})", PACKAGE_NAME, PACKAGE_VERSION, build_version)
+            }
+            None => format!("{} v{}", PACKAGE_NAME, PACKAGE_VERSION,),
         }
     }
 }
