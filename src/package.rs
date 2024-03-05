@@ -29,3 +29,5 @@ pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const PACKAGE_HOME_PAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 
 pub const PACKAGE_BUILD_VERSION: Option<&str> = option_env!("RUST_TOOL_ACTION_BUILD_VERSION");
+
+pub const PACKAGE_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");

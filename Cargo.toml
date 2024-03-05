@@ -1,5 +1,5 @@
 [package]
-authors = ["Richard Cook <rcook@rcook.org>"]
+authors = ["Richard Cook"]
 categories = ["multimedia::audio"]
 description = "ReaClick - CLAP click track generator plugin"
 edition = "2021"

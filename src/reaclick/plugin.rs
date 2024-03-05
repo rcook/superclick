@@ -25,7 +25,7 @@ use super::editor::create_editor;
 use super::params::ReaClickParams;
 use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
-use crate::package::{PACKAGE_HOME_PAGE, PACKAGE_VERSION};
+use crate::package::{PACKAGE_AUTHORS, PACKAGE_HOME_PAGE, PACKAGE_VERSION};
 use crate::result::{GetOr, Result};
 use nih_plug::prelude::*;
 use std::f32::consts;
@@ -156,7 +156,7 @@ impl Default for ReaClick {
 
 impl Plugin for ReaClick {
     const NAME: &'static str = "ReaClick";
-    const VENDOR: &'static str = "Richard Cook";
+    const VENDOR: &'static str = PACKAGE_AUTHORS;
     const URL: &'static str = PACKAGE_HOME_PAGE;
     const EMAIL: &'static str = "rcook@rcook.org";
     const VERSION: &'static str = PACKAGE_VERSION;
