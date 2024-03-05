@@ -13,28 +13,25 @@ Making a strong case for being the world's ugliest plugin&hellip;
 
 ![ReaClick UI](reaclick-in-reaper-windows.png "ReaClick UI")
 
-## Download release
+## Install plugin
 
-[Download release from GitHub][releases]
+1. [Download release from GitHub][releases]
+2. Verify the SHA256 checksum against the contents of the `.sha256sum` file
+3. Unzip the release and rename the file from `reaclick.dll` to
+`reaclick.clap` (Windows) or `libreaclick.dylib` to `libreaclick.clap`
+(macOS)
+4. Move the file into your CLAP plugins directory
 
-## Running inside REAPER (Windows)
-
-This plugin has been developed primarily to target Windows x64.
+## Running inside REAPER
 
 1. Start REAPER
 2. Go to _Options \| Preferences&hellip;_
 3. Go to _Plug-ins \| LV2/CLAP_
-4. Add the path to the bundle (e.g. `X:\path\to\reaclick\target\bundled`) to the list
-of directories under _CLAP plug-in paths (can be multiple paths separated by
-semicolons)_
+4. Add the path to your CLAP plugin directory to the list of directories
+under _CLAP plug-in paths (can be multiple paths separated by semicolons)_
 5. Click _Re-scan \| Re-scan CLAP paths for new/modified plug-ins_
 6. Double-click in the track panel to create a new, empty track
 7. Click on the _FX_ button and add an instance of _CLAP: ReaClick (Richard Cook)_
-
-## Running inside REAPER (macOS/Linux)
-
-This plugin has not been tested on either macOS or Linux. I do not have a macOS machine
-to test but I do know that it currently crashes. There is no reason in principle why these platforms should not work.
 
 ## Running inside other DAWs
 
