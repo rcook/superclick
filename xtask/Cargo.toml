@@ -1,5 +1,5 @@
 [package]
-authors = ["Richard Cook <rcook@rcook.org>"]
+authors = ["Richard Cook"]
 categories = ["development-tools::build-utils", "development-tools::cargo-plugins"]
 description = "ReaClick xtask"
 edition = "2021"
