@@ -23,22 +23,36 @@ See [GitHub Pages documentation][github-pages] for installation instructions.
 
 ## Development
 
-After installing [Rust][rustup], you can bundle a release build of ReaClick as
+After installing [Rust][rustup], you can use all of the usual [Cargo][cargo]
+commands. You can also build a bundle as follows:
 follows:
-
-```bash
-cargo xtask bundle reaclick --release
-```
-
-Or a debug build as follows:
 
 ```bash
 cargo xtask bundle reaclick
 ```
 
-These commands will build the project if necessary and create a CLAP bundle under `X:\path\to\reaclick\target\bundled` on Windows.
+This will build the target and bundle it correctly as CLAP plugin&mdash;by
+renaming the target binary to `ReaClick.clap` etc.
+
+This command will report the location of the `.clap` file at the end,
+e.g.
+
+```text
+Created a CLAP bundle at 'target/bundled/ReaClick.clap'
+```
+
+You can also bundle a release build as follows:
+
+```bash
+cargo xtask bundle reaclick --release
+```
+
+The absolute path to the bundle directory (i.e. `/path/to/target/bundled`
+or `X:\path\to\target\bundled`) is the CLAP plugin path you will need to
+add to the set of paths scanned by your host DAW.
 
 [body-beat-pulse-solo]: https://www.petersontuners.com/products/bodybeatpulse/
+[cargo]: https://doc.rust-lang.org/cargo/
 [ci-workflow]: https://github.com/rcook/reaclick/actions/workflows/ci.yaml
 [clap]: https://cleveraudio.org/
 [github-pages]: https://rcook.github.io/reaclick/
