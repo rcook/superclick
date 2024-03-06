@@ -15,12 +15,12 @@ Making a strong case for being the world's ugliest plugin&hellip;
 
 ## Install plugin
 
-1. [Download release from GitHub][releases]
-2. Verify the SHA256 checksum against the contents of the `.sha256sum` file
-3. Unzip the release and rename the file from `reaclick.dll` to
-`reaclick.clap` (Windows) or `libreaclick.dylib` to `libreaclick.clap`
-(macOS)
-4. Move the file into your CLAP plugins directory
+1. [Download archive from GitHub][releases]
+2. Verify the SHA256 checksum against the contents of the corresponding
+`.sha256sum` file
+3. Extract the `ReaClick.clap` file from the archive
+4. Move `ReaClick.clap` to a directory on your DAW's CLAP plugin search
+path
 
 ## Running inside REAPER
 
