@@ -19,124 +19,82 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::display::Display;
-use super::params::ReaClickParams;
 use crate::package::{PACKAGE_BUILD_VERSION, PACKAGE_HOME_PAGE, PACKAGE_NAME, PACKAGE_VERSION};
-use nih_plug::nih_error;
-use nih_plug::prelude::{Editor, GuiContext};
-use nih_plug_iced::button;
-use nih_plug_iced::executor::Default;
-use nih_plug_iced::{
-    create_iced_editor, Button, Color, Column, Command, Element, IcedEditor, IcedState, Text,
-    WindowQueue,
-};
+use crate::reaclick::display::Display;
+use crate::reaclick::params::ReaClickParams;
+use nih_plug::prelude::{util, Editor};
+use nih_plug_vizia::vizia::prelude::*;
+use nih_plug_vizia::widgets::*;
+use nih_plug_vizia::{assets, create_vizia_editor, ViziaState, ViziaTheming};
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use std::time::Duration;
 
-pub fn create_default_editor_state() -> Arc<IcedState> {
-    IcedState::from_size(400, 300)
+enum EditorEvent {
+    Increment,
+}
+
+#[derive(Lens)]
+struct EditorData {
+    params: Arc<ReaClickParams>,
+    display: Arc<Display>,
+    count: i32,
+}
+
+impl Model for EditorData {
+    fn event(&mut self, _: &mut EventContext, event: &mut Event) {
+        event.map(|e, _| match e {
+            EditorEvent::Increment => self.count += 1,
+        });
+    }
+}
+
+// Makes sense to also define this here, makes it a bit easier to keep track of
+pub fn create_default_editor_state() -> Arc<ViziaState> {
+    ViziaState::new(|| (200, 150))
 }
 
 pub fn create_editor(
     params: Arc<ReaClickParams>,
     display: Arc<Display>,
-    editor_state: Arc<IcedState>,
+    editor_state: Arc<ViziaState>,
 ) -> Option<Box<dyn Editor>> {
-    create_iced_editor::<ReaClickEditor>(
-        editor_state,
-        ReaClickEditorInitializationFlags { params, display },
-    )
-}
+    create_vizia_editor(editor_state, ViziaTheming::Custom, move |cx, _| {
+        assets::register_noto_sans_light(cx);
+        assets::register_noto_sans_thin(cx);
 
-#[derive(Clone)]
-struct ReaClickEditorInitializationFlags {
-    params: Arc<ReaClickParams>,
-    display: Arc<Display>,
-}
-
-struct ReaClickEditor {
-    #[allow(unused)]
-    params: Arc<ReaClickParams>,
-    context: Arc<dyn GuiContext>,
-    display: Arc<Display>,
-    report_bug_button_state: button::State,
-}
-
-impl IcedEditor for ReaClickEditor {
-    type Executor = Default;
-    type Message = Message;
-    type InitializationFlags = ReaClickEditorInitializationFlags;
-
-    fn new(
-        initialization_flags: Self::InitializationFlags,
-        context: Arc<dyn GuiContext>,
-    ) -> (Self, Command<Self::Message>) {
-        let editor = ReaClickEditor {
-            params: initialization_flags.params,
-            context,
-            display: initialization_flags.display,
-            report_bug_button_state: button::State::default(),
-        };
-
-        (editor, Command::none())
-    }
-
-    fn context(&self) -> &dyn GuiContext {
-        self.context.as_ref()
-    }
-
-    fn update(
-        &mut self,
-        _window: &mut WindowQueue,
-        message: Self::Message,
-    ) -> Command<Self::Message> {
-        match message {
-            Self::Message::ReportBugButtonPressed => {
-                if let Err(e) = webbrowser::open(PACKAGE_HOME_PAGE) {
-                    nih_error!("{}", e);
-                }
-            }
+        EditorData {
+            params: params.clone(),
+            display: display.clone(),
+            count: 0,
         }
-        Command::none()
-    }
+        .build(cx);
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
-        let strs = DisplayStrings::new(&self.params.editor_state, &self.display);
-
-        let mut column = Column::new().push(Text::new(strs.title));
-
-        if let Some(ref s) = strs.error {
-            column = column.push(Text::new(s)).push(
-                Button::new(&mut self.report_bug_button_state, Text::new("Report bug"))
-                    .on_press(Self::Message::ReportBugButtonPressed),
+        VStack::new(cx, |cx| {
+            Button::new(
+                cx,
+                |cx| cx.emit(EditorEvent::Increment),
+                |cx| Label::new(cx, "Test"),
             );
-        }
+            Label::new(cx, EditorData::count)
+                .width(Pixels(50.0))
+                .live(Live::Polite);
+            Label::new(cx, "Gain GUI")
+                .font_family(vec![FamilyOwned::Name(String::from(assets::NOTO_SANS))])
+                .font_weight(FontWeightKeyword::Thin)
+                .font_size(30.0)
+                .height(Pixels(50.0))
+                .child_top(Stretch(1.0))
+                .child_bottom(Pixels(0.0));
 
-        column = column.push(Text::new(&strs.song_position));
+            Label::new(cx, "Gain").top(Pixels(10.0));
+        })
+        .row_between(Pixels(0.0))
+        .child_left(Stretch(1.0))
+        .child_right(Stretch(1.0));
 
-        if let Some(ref s) = strs.tempo {
-            column = column.push(Text::new(s))
-        }
-
-        if let Some(ref s) = strs.big {
-            column = column.push(Text::new(s).size(150));
-        }
-
-        column.into()
-    }
-
-    fn background_color(&self) -> Color {
-        Color {
-            r: 0.58,
-            g: 0.98,
-            b: 0.58,
-            a: 1.0,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-enum Message {
-    ReportBugButtonPressed,
+        ResizeHandle::new(cx);
+    })
 }
 
 struct DisplayStrings {
@@ -148,7 +106,7 @@ struct DisplayStrings {
 }
 
 impl DisplayStrings {
-    fn new(editor_state: &IcedState, display: &Display) -> Self {
+    fn new(editor_state: &ViziaState, display: &Display) -> Self {
         let title = Self::format_title(editor_state);
 
         let error_code = display.error_code();
@@ -200,7 +158,7 @@ impl DisplayStrings {
     }
 
     #[cfg(debug_assertions)]
-    fn format_title(editor_state: &IcedState) -> String {
+    fn format_title(editor_state: &ViziaState) -> String {
         match PACKAGE_BUILD_VERSION {
             Some(ref build_version) => {
                 format!(
@@ -208,14 +166,14 @@ impl DisplayStrings {
                     PACKAGE_NAME,
                     PACKAGE_VERSION,
                     build_version,
-                    editor_state.size()
+                    editor_state.scaled_logical_size()
                 )
             }
             None => format!(
                 "{} v{} [{:?}]",
                 PACKAGE_NAME,
                 PACKAGE_VERSION,
-                editor_state.size()
+                editor_state.scaled_logical_size()
             ),
         }
     }

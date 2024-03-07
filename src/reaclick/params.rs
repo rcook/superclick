@@ -21,13 +21,13 @@
 //
 use super::editor::create_default_editor_state;
 use nih_plug::prelude::*;
-use nih_plug_iced::IcedState;
+use nih_plug_vizia::ViziaState;
 use std::sync::Arc;
 
 #[derive(Params)]
 pub struct ReaClickParams {
     #[persist = "editor-state"]
-    pub editor_state: Arc<IcedState>,
+    pub editor_state: Arc<ViziaState>,
 }
 
 impl Default for ReaClickParams {
