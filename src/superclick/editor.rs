@@ -20,7 +20,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use super::display::Display;
-use super::params::ReaClickParams;
+use super::params::SuperClickParams;
 use crate::package::{PACKAGE_BUILD_VERSION, PACKAGE_HOME_PAGE, PACKAGE_NAME, PACKAGE_VERSION};
 use nih_plug::nih_error;
 use nih_plug::prelude::{Editor, GuiContext};
@@ -37,40 +37,40 @@ pub fn create_default_editor_state() -> Arc<IcedState> {
 }
 
 pub fn create_editor(
-    params: Arc<ReaClickParams>,
+    params: Arc<SuperClickParams>,
     display: Arc<Display>,
     editor_state: Arc<IcedState>,
 ) -> Option<Box<dyn Editor>> {
-    create_iced_editor::<ReaClickEditor>(
+    create_iced_editor::<SuperClickEditor>(
         editor_state,
-        ReaClickEditorInitializationFlags { params, display },
+        SuperClickEditorInitializationFlags { params, display },
     )
 }
 
 #[derive(Clone)]
-struct ReaClickEditorInitializationFlags {
-    params: Arc<ReaClickParams>,
+struct SuperClickEditorInitializationFlags {
+    params: Arc<SuperClickParams>,
     display: Arc<Display>,
 }
 
-struct ReaClickEditor {
+struct SuperClickEditor {
     #[allow(unused)]
-    params: Arc<ReaClickParams>,
+    params: Arc<SuperClickParams>,
     context: Arc<dyn GuiContext>,
     display: Arc<Display>,
     report_bug_button_state: button::State,
 }
 
-impl IcedEditor for ReaClickEditor {
+impl IcedEditor for SuperClickEditor {
     type Executor = Default;
     type Message = Message;
-    type InitializationFlags = ReaClickEditorInitializationFlags;
+    type InitializationFlags = SuperClickEditorInitializationFlags;
 
     fn new(
         initialization_flags: Self::InitializationFlags,
         context: Arc<dyn GuiContext>,
     ) -> (Self, Command<Self::Message>) {
-        let editor = ReaClickEditor {
+        let editor = SuperClickEditor {
             params: initialization_flags.params,
             context,
             display: initialization_flags.display,

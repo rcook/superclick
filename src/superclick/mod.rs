@@ -25,4 +25,4 @@ mod editor;
 mod params;
 mod plugin;
 
-pub use self::plugin::ReaClick;
+pub use self::plugin::SuperClick;

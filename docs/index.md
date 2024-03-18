@@ -1,6 +1,6 @@
-# ReaClick
+# SuperClick
 
-ReaClick is a [CLAP][clap] click track generator plugin for CLAP hosts including
+SuperClick is a [CLAP][clap] click track generator plugin for CLAP hosts including
 [REAPER][reaper]. I'm building this to generate signals for devices such as the
 [Peterson Body Beat Pulse Solo][body-beat-pulse-solo]. This project is at the
 "proof of concept" stage: it generates an audible click in time with the song etc.
@@ -11,15 +11,15 @@ _Note that this plugin has only been tested thoroughly(ish) on Windows running
 
 Making a strong case for being the world's ugliest plugin&hellip;
 
-![ReaClick UI](reaclick-in-reaper-windows.png "ReaClick UI")
+![SuperClick UI](superclick-in-reaper-windows.png "SuperClick UI")
 
 ## Install plugin
 
 1. [Download archive from GitHub][releases]
 2. Verify the SHA256 checksum against the contents of the corresponding
 `.sha256sum` file
-3. Extract the `ReaClick.clap` file from the archive
-4. Move `ReaClick.clap` to a directory on your DAW's CLAP plugin search
+3. Extract the `SuperClick.clap` file from the archive
+4. Move `SuperClick.clap` to a directory on your DAW's CLAP plugin search
 path
 
 ## Running inside REAPER
@@ -31,7 +31,7 @@ path
 under _CLAP plug-in paths (can be multiple paths separated by semicolons)_
 5. Click _Re-scan \| Re-scan CLAP paths for new/modified plug-ins_
 6. Double-click in the track panel to create a new, empty track
-7. Click on the _FX_ button and add an instance of _CLAP: ReaClick (Richard Cook)_
+7. Click on the _FX_ button and add an instance of _CLAP: SuperClick (Richard Cook)_
 
 ## Running inside other DAWs
 
@@ -41,7 +41,7 @@ _[Developers][readme] \| [Issues][issues]_
 
 [body-beat-pulse-solo]: https://www.petersontuners.com/products/bodybeatpulse/
 [clap]: https://cleveraudio.org/
-[issues]: https://github.com/rcook/reaclick/issues
-[readme]: https://github.com/rcook/reaclick/blob/main/README.md
+[issues]: https://github.com/rcook/superclick/issues
+[readme]: https://github.com/rcook/superclick/blob/main/README.md
 [reaper]: https://reaper.fm/
-[releases]: https://github.com/rcook/reaclick/releases
+[releases]: https://github.com/rcook/superclick/releases

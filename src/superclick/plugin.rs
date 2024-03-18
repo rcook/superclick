@@ -22,7 +22,7 @@
 use super::click::{Channel, Click};
 use super::display::{Display, Playhead};
 use super::editor::create_editor;
-use super::params::ReaClickParams;
+use super::params::SuperClickParams;
 use crate::error::Error;
 use crate::music_theory::TimeSignatureTop;
 use crate::package::{PACKAGE_AUTHORS, PACKAGE_HOME_PAGE, PACKAGE_VERSION};
@@ -34,14 +34,14 @@ use std::sync::Arc;
 const LEFT_CHANNEL_ID: usize = 0;
 const RIGHT_CHANNEL_ID: usize = 1;
 
-pub struct ReaClick {
-    params: Arc<ReaClickParams>,
+pub struct SuperClick {
+    params: Arc<SuperClickParams>,
     display: Arc<Display>,
     sample_rate: f32,
     phase: f32,
 }
 
-impl ReaClick {
+impl SuperClick {
     fn process_inner(
         &mut self,
         buffer: &mut Buffer,
@@ -143,10 +143,10 @@ impl ReaClick {
     }
 }
 
-impl Default for ReaClick {
+impl Default for SuperClick {
     fn default() -> Self {
         Self {
-            params: Arc::new(ReaClickParams::default()),
+            params: Arc::new(SuperClickParams::default()),
             display: Arc::new(Display::default()),
             sample_rate: 0f32,
             phase: 0f32,
@@ -154,8 +154,8 @@ impl Default for ReaClick {
     }
 }
 
-impl Plugin for ReaClick {
-    const NAME: &'static str = "ReaClick";
+impl Plugin for SuperClick {
+    const NAME: &'static str = "SuperClick";
     const VENDOR: &'static str = PACKAGE_AUTHORS;
     const URL: &'static str = PACKAGE_HOME_PAGE;
     const EMAIL: &'static str = "rcook@rcook.org";
@@ -214,8 +214,8 @@ impl Plugin for ReaClick {
     }
 }
 
-impl ClapPlugin for ReaClick {
-    const CLAP_ID: &'static str = "org.rcook.reaclick";
+impl ClapPlugin for SuperClick {
+    const CLAP_ID: &'static str = "org.rcook.superclick";
     const CLAP_DESCRIPTION: Option<&'static str> = Some(Self::NAME);
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;

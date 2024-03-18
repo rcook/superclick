@@ -25,12 +25,12 @@ use nih_plug_iced::IcedState;
 use std::sync::Arc;
 
 #[derive(Params)]
-pub struct ReaClickParams {
+pub struct SuperClickParams {
     #[persist = "editor-state"]
     pub editor_state: Arc<IcedState>,
 }
 
-impl Default for ReaClickParams {
+impl Default for SuperClickParams {
     fn default() -> Self {
         Self {
             editor_state: create_default_editor_state(),

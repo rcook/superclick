@@ -1,7 +1,7 @@
 name: Release
 
 env:
-  tool_name: reaclick
+  tool_name: superclick
   build_type: release
 
 permissions:
@@ -24,19 +24,19 @@ jobs:
           - target: aarch64-apple-darwin
             target_prefix: lib
             target_ext: .dylib
-            rename_target: ReaClick.clap
+            rename_target: SuperClick.clap
             archive_type: .tar.gz
             build_os: macos-latest
           - target: x86_64-apple-darwin
             target_prefix: lib
             target_ext: .dylib
-            rename_target: ReaClick.clap
+            rename_target: SuperClick.clap
             archive_type: .tar.gz
             build_os: macos-latest
           - target: x86_64-pc-windows-msvc
             target_prefix:
             target_ext: .dll
-            rename_target: ReaClick.clap
+            rename_target: SuperClick.clap
             archive_type: .zip
             build_os: windows-latest
     runs-on: ${{ matrix.build_os }}
