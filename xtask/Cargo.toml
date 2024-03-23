@@ -1,14 +1,14 @@
 [package]
 authors = ["Richard Cook"]
 categories = ["development-tools::build-utils", "development-tools::cargo-plugins"]
-description = "ReaClick xtask"
+description = "SuperClick xtask"
 edition = "2021"
-homepage = "https://rcook.github.io/reaclick/"
+homepage = "https://rcook.github.io/superclick/"
 keywords = ["build-tools"]
 license = "MIT"
 name = "xtask"
 readme = "../README.md"
-repository = "https://github.com/rcook/reaclick.git"
+repository = "https://github.com/rcook/superclick.git"
 version = "0.0.8"
 
 [dependencies]

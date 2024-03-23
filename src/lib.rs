@@ -22,10 +22,10 @@
 mod error;
 mod music_theory;
 mod package;
-mod reaclick;
 mod result;
+mod superclick;
 
 use nih_plug::nih_export_clap;
-use reaclick::ReaClick;
+use superclick::SuperClick;
 
-nih_export_clap!(ReaClick);
+nih_export_clap!(SuperClick);
