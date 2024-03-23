@@ -5,10 +5,15 @@
 
 [GitHub Pages documentation][github-pages]
 
-ReaClick is a [CLAP][clap] click track generator plugin for CLAP hosts including
-[REAPER][reaper]. I'm building this to generate signals for devices such as the
-[Peterson Body Beat Pulse Solo][body-beat-pulse-solo]. This project is at the
-"proof of concept" stage: it generates an audible click in time with the song etc.
+ReaClick is a [CLAP][clap] click track generator plugin for CLAP hosts
+including [REAPER][reaper]. I'm building this to generate signals for
+devices such as the [Peterson Body Beat Pulse Solo][body-beat-pulse-solo].
+This project is at the "proof of concept" stage: it generates an audible
+click in time with the song etc.
+
+This project makes uses of the [NIH-plug][nih-plug] framework. For those
+interested in developing Rust applications for audio, please check out
+[Rust Audio][rust-audio] and the [Rust Audio Discord][rust-audio-discord].
 
 Released under [MIT License](LICENSE)
 
@@ -37,6 +42,9 @@ These commands will build the project if necessary and create a CLAP bundle unde
 [ci-workflow]: https://github.com/rcook/reaclick/actions/workflows/ci.yaml
 [clap]: https://cleveraudio.org/
 [github-pages]: https://rcook.github.io/reaclick/
+[nih-plug]: https://github.com/robbert-vdh/nih-plug
 [reaper]: https://reaper.fm/
 [release-workflow]: https://github.com/rcook/reaclick/actions/workflows/release.yaml
+[rust-audio]: https://rust.audio/
+[rust-audio-discord]: https://discord.gg/8qW6q2k
 [rustup]: (https://rustup.rs/)
