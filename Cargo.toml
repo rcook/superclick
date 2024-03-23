@@ -9,7 +9,7 @@ license = "MIT"
 name = "reaclick"
 readme = "README.md"
 repository = "https://github.com/rcook/reaclick.git"
-version = "0.0.4"
+version = "0.0.5"
 
 [workspace]
 members = ["xtask"]
