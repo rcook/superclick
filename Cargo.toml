@@ -18,6 +18,7 @@ members = ["xtask"]
 crate-type = ["cdylib"]
 
 [dependencies]
+atomic_float = "0.1.0"
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
 nih_plug_iced = { git = "https://github.com/robbert-vdh/nih-plug.git" }
 webbrowser = "0.8.12"

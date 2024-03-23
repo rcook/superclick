@@ -21,12 +21,12 @@
 //
 #[derive(Debug)]
 pub enum Error {
-    TempoUnavailable,
-    BarNumberUnavailable,
-    BarStartPosBeatsUnavailable,
-    PosBeatsUnavailable,
-    TimeSigNumeratorUnavailable,
-    TimeSignDenominatorUnavailable,
-    InvalidTimeSignatureTop,
-    InvalidTimeSignatureBottom,
+    TempoUnavailable = 0x1001,
+    BarNumberUnavailable = 0x1002,
+    BarStartPosBeatsUnavailable = 0x1003,
+    PosBeatsUnavailable = 0x1004,
+    TimeSigNumeratorUnavailable = 0x1005,
+    TimeSignDenominatorUnavailable = 0x1006,
+    InvalidTimeSignatureTop = 0x1007,
+    InvalidTimeSignatureBottom = 0x1008,
 }
