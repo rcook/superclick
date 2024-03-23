@@ -9,7 +9,7 @@ license = "MIT"
 name = "superclick"
 readme = "README.md"
 repository = "https://github.com/rcook/superclick.git"
-version = "0.0.8"
+version = "0.0.9"
 
 [workspace]
 members = ["xtask"]
