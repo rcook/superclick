@@ -24,22 +24,25 @@ jobs:
           - target: aarch64-apple-darwin
             target_prefix: lib
             target_ext: .dylib
+            rename_target: ReaClick.clap
             archive_type: .tar.gz
             build_os: macos-latest
           - target: x86_64-apple-darwin
             target_prefix: lib
             target_ext: .dylib
+            rename_target: ReaClick.clap
             archive_type: .tar.gz
             build_os: macos-latest
           - target: x86_64-pc-windows-msvc
             target_prefix:
             target_ext: .dll
+            rename_target: ReaClick.clap
             archive_type: .zip
             build_os: windows-latest
     runs-on: ${{ matrix.build_os }}
     steps:
       - name: Build, test and release Rust tool
-        uses: rcook/rust-tool-action@v0.0.28
+        uses: rcook/rust-tool-action@v0.0.29
         with:
           tool_name: ${{ env.tool_name }}
           target: ${{ matrix.target }}
