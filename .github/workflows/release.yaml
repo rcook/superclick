@@ -28,7 +28,7 @@ jobs:
             build_os: macos-latest
           - target: x86_64-apple-darwin
             target_prefix: lib
-            target_ext:
+            target_ext: .dylib
             archive_type: .tar.gz
             build_os: macos-latest
           - target: x86_64-pc-windows-msvc
